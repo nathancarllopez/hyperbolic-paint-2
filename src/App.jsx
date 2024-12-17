@@ -1,35 +1,90 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useEffect, useState } from 'react'
 import './App.css'
+import FabDrawer from './fabDrawer/FabDrawer'
+import HypCanvas from './hypCanvas/HypCanvas'
+import Toolbar from './toolbar/Toolbar'
+import HistoryControls from './toolbar/HistoryControls'
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [openDrawer, setOpenDrawer] = useState(null)
+
+  const [toolbarState, setToolbarState] = useState({
+    clickTool: 'point',
+    showCursorCoord: true,
+  })
+  function handleToolbarClick(toolName, toolValue, closeDrawer = true) {
+    const stateAfterClick = {
+      ...toolbarState,
+      [toolName]: toolValue
+    };
+    setToolbarState(stateAfterClick);
+    
+    if (closeDrawer) {
+      setOpenDrawer(null);
+    }
+  }
+
+  const [history, setHistory] = useState([]);
+  function handleUndoHistory() {
+    if (!history.length) {
+      console.log('no history')
+      return;
+    }
+
+    const oneStepBack = [...history];
+    oneStepBack.pop();
+    setHistory(oneStepBack);
+  }
+  function handleUpdateHistory(newShape) {
+    const currShapes = history.length ? history[history.length - 1] : [];
+    setHistory([ ...history, [ ...currShapes, newShape]])
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div style={{
+      position: "absolute",
+      top: 0,
+      left: 0,
+      width: "100vw",
+      height: "100vh"
+    }}>
+      <FabDrawer
+        fabPlacement="topLeft"
+        onDrawerOpen={() => setOpenDrawer('info')}
+        onDrawerClose={() => setOpenDrawer(null)}
+        isOpen={openDrawer === 'info'}
+        title="Information"
+        fabIcon="?"
+      >
+        <p>Information</p>
+      </FabDrawer>
 
-export default App
+      {history.length > 0 && 
+        <HistoryControls
+          handleUndoClick={handleUndoHistory}
+          disableUndo={!history.length}
+        />
+      }
+
+      <HypCanvas
+        toolbarState={toolbarState}
+        shapes={history.length ? history[history.length - 1] : []}
+        addShapes={handleUpdateHistory}
+      />
+
+      <FabDrawer
+        fabPlacement="topRight"
+        onDrawerOpen={() => setOpenDrawer('toolbar')}
+        onDrawerClose={() => setOpenDrawer(null)}
+        isOpen={openDrawer === 'toolbar'}
+        title="Toolbar"
+        fabIcon="+"
+      >
+        <Toolbar
+          toolbarState={toolbarState}
+          onClick={handleToolbarClick}
+        />
+      </FabDrawer>
+    </div>
+  );
+}
