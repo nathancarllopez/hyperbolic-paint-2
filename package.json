@@ -10,9 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "bootstrap": "^5.3.3",
     "konva": "^9.3.16",
     "react": "^19.0.0",
+    "react-bootstrap": "^2.10.7",
     "react-dom": "^19.0.0",
+    "react-draggable": "^4.4.6",
     "react-konva": "^19.0.1"
   },
   "devDependencies": {
