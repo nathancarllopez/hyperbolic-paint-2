@@ -2,7 +2,15 @@ import Offcanvas from "react-bootstrap/Offcanvas";
 
 import Fab from "./Fab";
 
-export default function FabDrawer({ fabPlacement, onDrawerOpen, onDrawerClose, isOpen, title, fabIcon, children }) {
+export default function FabDrawer({ 
+  isOpen, 
+  onClick, 
+  onHide, 
+  fabPlacement, 
+  title, 
+  fabIcon, 
+  children
+}) {
   const drawerPlacement = (() => {
     switch(fabPlacement) {
       case 'topLeft':
@@ -17,9 +25,9 @@ export default function FabDrawer({ fabPlacement, onDrawerOpen, onDrawerClose, i
 
   return (
     <>
-      <Fab placement={fabPlacement} icon={fabIcon} onClick={onDrawerOpen} />
+      <Fab placement={fabPlacement} icon={fabIcon} onClick={onClick} />
 
-      <Offcanvas show={isOpen} onHide={onDrawerClose} placement={drawerPlacement}>
+      <Offcanvas show={isOpen} onHide={onHide} placement={drawerPlacement}>
         <Offcanvas.Header closeButton>
           <Offcanvas.Title className="fs-2">{title}</Offcanvas.Title>
         </Offcanvas.Header>
