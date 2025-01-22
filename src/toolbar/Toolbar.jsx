@@ -8,55 +8,122 @@ import Row from "react-bootstrap/Row";
 import Stack from "react-bootstrap/Stack";
 import ToggleButton from "react-bootstrap/ToggleButton";
 
-// import TooltipWrapper from "./TooltipWrapper";
-
 export default function Toolbar({ toolbarState, onClick }) {
-  const shapesButtons = [
-    { name: 'point', label: 'P'},
-    { name: 'line', label: 'L' },
-    // { name: 'circle', label: 'C' },
-    // { name: 'horocycle', label: 'H' }
+  const drawingButtons = [
+    { name: 'point', label: 'Pt'},
+    { name: 'geodesic', label: 'L' },
+    { name: 'circle', label: 'C' },
+    { name: 'horocycle', label: 'H' },
+    { name: 'segment', label: 'S' },
+    { name: 'polygon', label: 'Pg'},
+  ];
+
+  const animationButtons = [
+    { name: 'rotation', label: 'R' }
+  ];
+
+  const settings = [
+    { name: 'showMouseCoords', label: 'Show Mouse Coordinates' },
+    { name: 'showHistoryControls', label: 'Show History Controls' },
+    { name: 'showAxisTicks', label: 'Show Axis Ticks' }
   ];
 
   return (
     <Stack gap={3}>
+
+      {/* Drawing buttons */}
       <Card>
         <Card.Body>
           <Card.Title>Shapes</Card.Title>
           <Container>
             <Row>
-              {shapesButtons.map(({ name, label }) => (
-                <Col key={name}>
-                  <ToggleButton
-                    id={name}
-                    value={name}
-                    type="radio"
-                    name="clickTool"
-                    onChange={() => onClick('clickTool', name)}
-                  >
-                    {label}
-                  </ToggleButton>
-                </Col>
-              ))}
+              {
+                drawingButtons.map(({ name, label }) => (
+                  <Col key={name} bsPrefix="col-4">
+                    <ToggleButton
+                      id={name}
+                      value={name}
+                      type="radio"
+                      name="clickTool"
+                      onChange={() => onClick('clickTool', name)}
+                    >
+                      { label }
+                    </ToggleButton>
+                  </Col>
+                ))
+              }
+            </Row>
+          </Container>
+        </Card.Body>
+      </Card>
+      
+      {/* Animation buttons */}
+      <Card>
+        <Card.Body>
+          <Card.Title>Animations</Card.Title>
+          <Container>
+            <Row>
+              {
+                animationButtons.map(({ name, label }) => (
+                  <Col key={name}>
+                    <ToggleButton
+                      id={name}
+                      value={name}
+                      type="radio"
+                      name="clickTool"
+                      onChange={() => onClick('clickTool', name)}
+                    >
+                      { label }
+                    </ToggleButton>
+                  </Col>
+                ))
+              }
             </Row>
           </Container>
         </Card.Body>
       </Card>
 
+      {/* <Card>
+        <Card.Body>
+          <Card.Title>Style</Card.Title>
+          <Container>
+            <Row>
+              <Col>
+                <ToggleButton
+                  id="select"
+                  value={"select"}
+                  type="radio"
+                  name="clickTool"
+                  onChange={() => onClick('clickTool', 'select')}
+                >
+                  S
+                </ToggleButton>
+              </Col>
+            </Row>
+          </Container>
+        </Card.Body>
+      </Card> */}
+
+      {/* Settings */}
       <Card>
         <Card.Body>
           <Card.Title>Settings</Card.Title>
           <Container>
-            <FormCheck
-              type="switch"
-              id="showCursorCoordSwitch"
-            >
-              <FormCheckLabel>Show Cursor Coordinates</FormCheckLabel>
-              <FormCheckInput
-                checked={toolbarState.showCursorCoord}
-                onChange={() => onClick('showCursorCoord', !toolbarState.showCursorCoord, false)}
-              />
-            </FormCheck>
+            {
+              settings.map(({ name, label }) => (
+                <FormCheck 
+                  key={name}
+                  type="switch"
+                  id={name}
+                >
+                  <FormCheckLabel>{ label }</FormCheckLabel>
+                  <FormCheckInput
+                    checked={toolbarState[name]}
+                    onChange={() => onClick(name, !toolbarState[name], false)}
+                  />
+                </FormCheck>
+              ))
+            }
           </Container>
         </Card.Body>
       </Card>
