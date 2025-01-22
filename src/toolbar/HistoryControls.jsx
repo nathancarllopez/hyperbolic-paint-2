@@ -1,9 +1,19 @@
 import { useRef } from "react";
-import { Button, Card, Container } from "react-bootstrap";
+import { Button, Card, Col, Container, Row } from "react-bootstrap";
 import Draggable from "react-draggable";
 
-export default function HistoryControls({ handleUndoClick, disableUndo }) {
+export default function HistoryControls({
+  undoDisabled,
+  redoDisabled,
+  onUndoClick,
+  onRedoClick
+}) {
   const nodeRef = useRef(null);
+
+  const buttonInfo = [
+    { key: 'undo', label: "Undo", disabled: undoDisabled, onClick: onUndoClick },
+    { key: 'redo', label: "Redo", disabled: redoDisabled, onClick: onRedoClick },
+  ];
 
   return (
     <Draggable nodeRef={nodeRef}>
@@ -19,12 +29,20 @@ export default function HistoryControls({ handleUndoClick, disableUndo }) {
       >
         <Card.Body>
           <Container>
-            <Button
-              onClick={handleUndoClick}
-              disabled={disableUndo}
-            >
-              Undo
-            </Button>
+            <Row>
+              {
+                buttonInfo.map(({ key, label, disabled, onClick }) => (
+                  <Col key={key}>
+                    <Button
+                      disabled={disabled}
+                      onClick={onClick}
+                    >
+                      { label }
+                    </Button>
+                  </Col>
+                ))
+              }
+            </Row>
           </Container>
         </Card.Body>
       </Card>
