@@ -1,19 +1,128 @@
-import { Line } from "react-konva"
-import { VERTICAL_AXIS_HEIGHT } from "../constants";
+import { Group, Line, Text } from "react-konva"
+import { AXES_COLOR, AXES_LABEL_FONT_SIZE, AXES_STROKE_WIDTH, AXIS_TICK_LENGTH, AXIS_TICK_SEPARATION, VERTICAL_AXIS_HEIGHT } from "../../constants";
+import { Fragment } from "react";
 
-export default function Axes() {
+// export default function Axes({
+//   originCoords,
+// }) {
+//   return (
+//     <Group id="axes">
+//       {/** Horizontal */}
+//       <Line 
+//         points={[0, VERTICAL_AXIS_HEIGHT, window.innerWidth, VERTICAL_AXIS_HEIGHT]}
+//         stroke={AXES_COLOR}
+//         strokeWidth={AXES_STROKE_WIDTH}
+//       />
+
+//       {/** Vertical */}
+//       <Line
+//         points={[originCoords.canvasX, 0, originCoords.canvasX, VERTICAL_AXIS_HEIGHT]}
+//         stroke={AXES_COLOR}
+//         strokeWidth={AXES_STROKE_WIDTH}
+//       />
+//     </Group>
+//   );
+// }
+
+export default function Axes({
+  // originCoords,
+  originX,
+  getMathCoordinates,
+  toolbarState,
+  zoomScale
+}) {
+  const vertTicks = [];
+  let position = VERTICAL_AXIS_HEIGHT;
+  while (position > 0) {
+    position -= AXIS_TICK_SEPARATION;
+    const { mathY: label } = getMathCoordinates(originX, position);
+    vertTicks.push({ position, label });
+  }
+
+  const posHorzTicks = [];
+  position = originX;
+  while (position < window.innerWidth) {
+    position += AXIS_TICK_SEPARATION;
+    const { mathX: label } = getMathCoordinates(position, VERTICAL_AXIS_HEIGHT);
+    posHorzTicks.push({ position, label });
+  }
+
+  const negHorzTicks = [];
+  position = originX;
+  while (position > 0) {
+    position -= AXIS_TICK_SEPARATION;
+    const { mathX: label } = getMathCoordinates(position, VERTICAL_AXIS_HEIGHT);
+    negHorzTicks.push({ position, label });
+  }
+
   return (
-    <>
-      <Line
-        y={VERTICAL_AXIS_HEIGHT}
-        points={[0, 0, window.innerWidth, 0]}
-        stroke="white"
+    <Group id="axes">
+      {/** Horizontal */}
+      <Line 
+        points={[0, VERTICAL_AXIS_HEIGHT, window.innerWidth, VERTICAL_AXIS_HEIGHT]}
+        stroke={AXES_COLOR}
+        strokeWidth={AXES_STROKE_WIDTH}
       />
+      {
+        toolbarState.showAxisTicks && posHorzTicks.map(({ position, label }, idx) => (
+          <Fragment key={idx}>
+            <Line
+              points={[position, VERTICAL_AXIS_HEIGHT - AXIS_TICK_LENGTH, position, VERTICAL_AXIS_HEIGHT + AXIS_TICK_LENGTH]}
+              stroke={AXES_COLOR}
+            />
+            <Text
+              x={position + AXES_LABEL_FONT_SIZE / 2}
+              y={VERTICAL_AXIS_HEIGHT + AXIS_TICK_LENGTH + 5}
+              text={label}
+              fill={AXES_COLOR}
+              fontSize={AXES_LABEL_FONT_SIZE}
+              rotation={90}
+            />
+          </Fragment>
+        ))
+      }
+      {
+        toolbarState.showAxisTicks && negHorzTicks.map(({ position, label }, idx) => (
+          <Fragment key={idx}>
+            <Line
+              points={[position, VERTICAL_AXIS_HEIGHT - AXIS_TICK_LENGTH, position, VERTICAL_AXIS_HEIGHT + AXIS_TICK_LENGTH]}
+              stroke={AXES_COLOR}
+            />
+            <Text
+              x={position + AXES_LABEL_FONT_SIZE / 2}
+              y={VERTICAL_AXIS_HEIGHT + AXIS_TICK_LENGTH + 5}
+              text={label}
+              fill={AXES_COLOR}
+              fontSize={AXES_LABEL_FONT_SIZE}
+              rotation={90}
+            />
+          </Fragment>
+        ))
+      }
+
+      {/** Vertical */}
       <Line
-        x={window.innerWidth / 2}
-        points={[0, 0, 0, VERTICAL_AXIS_HEIGHT]}
-        stroke="white"
+        points={[originX, 0, originX, VERTICAL_AXIS_HEIGHT]}
+        stroke={AXES_COLOR}
+        strokeWidth={AXES_STROKE_WIDTH}
       />
-    </>
+      {
+        toolbarState.showAxisTicks && vertTicks.map(({ position, label }, idx) => (
+          <Fragment key={idx}>
+            <Line
+              points={[originX - AXIS_TICK_LENGTH, position, originX + AXIS_TICK_LENGTH, position]}
+              stroke={AXES_COLOR}
+            />
+            <Text
+              x={originX + AXIS_TICK_LENGTH + 5}
+              y={position - AXES_LABEL_FONT_SIZE / 2}
+              text={label}
+              fill={AXES_COLOR}
+              fontSize={AXES_LABEL_FONT_SIZE}
+            />
+          </Fragment>
+        ))
+      }
+    </Group>
   );
 }
