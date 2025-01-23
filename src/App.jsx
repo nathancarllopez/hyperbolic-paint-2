@@ -50,9 +50,6 @@ export default function App() {
    * Effects
    */
   //#region
-  /**
-   * Ties keyboard shortcuts to the associated ui buttons
-   */
   useEffect(() => {
     const handleKeyDown = (event) => {
       const undoPressed = (event.metaKey || event.ctrlKey ) && event.key === 'z';
@@ -77,7 +74,7 @@ export default function App() {
     }
   }, [selectedShape]);
   //#endregion
-
+  
   /**
    * Event handlers
    */
@@ -152,7 +149,8 @@ export default function App() {
         cancelAnimationFrame(animationFrameRef.current);
         animationFrameRef.current = null;
 
-        if (toolbarState.clickTool === 'polygon' && activeCoords.length > 0) {
+        const draggingCanvas = mouseXRef.current !== mouseCoords.canvasX;
+        if (toolbarState.clickTool === 'polygon' && activeCoords.length > 0 && !draggingCanvas) {
           if (activeCoords.length === 1) {
             // To do: Make this nicer, just a placeholder for now
             alert('you need to choose at least three points to make a polygon');
@@ -199,14 +197,17 @@ export default function App() {
       };
       if (activeCoords.length > 0) {
         setActiveCoords(prev => {
-          return {
-            ...prev,
-            params: {
-              ...prev.params,
-              canvasX: prev.params.canvasX + dispX
+          const dispActiveCoords = prev.map(recipe => {
+            return {
+              ...recipe,
+              params: {
+                ...recipe.params,
+                canvasX: recipe.params.canvasX + dispX
+              }
             }
-          };
-        });
+          });
+          return dispActiveCoords;
+        })
       }
       transformCurrentDrawings(recipe => {
         switch(recipe.name) {
