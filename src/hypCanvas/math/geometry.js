@@ -1,5 +1,4 @@
 import { EPSILON, VERTICAL_AXIS_HEIGHT } from "../../constants";
-// import { getCanvasCoordinatesOld, getMathCoordinatesOld } from "./coordinates";
 
 export function getGeodesicParams(anchor1, anchor2, getMathCoordinates) {
   const xSeparation = anchor2.canvasX - anchor1.canvasX;
@@ -19,7 +18,6 @@ export function getHypCircleParams(center, anchor, getCanvasCoordinates) {
   const deltaX = anchor.mathX - center.mathX;
   if (Math.abs(deltaX) < EPSILON) {
     const mathY = (anchor.mathY ** 2 + center.mathY ** 2) / (2 * anchor.mathY);
-    // const eucCenter = getCanvasCoordinatesOld(center.mathX, mathY);
     const eucCenter = getCanvasCoordinates(center.mathX, mathY);
     const radius = computeRadius(eucCenter);
 
@@ -33,7 +31,6 @@ export function getHypCircleParams(center, anchor, getCanvasCoordinates) {
   const centerOfGeod = midpointX + midpointY * slope;
 
   const mathY = anchor.mathY + (centerOfGeod - anchor.mathX) * (center.mathX - anchor.mathX) / anchor.mathY;
-  // const eucCenter = getCanvasCoordinatesOld(center.mathX, mathY);
   const eucCenter = getCanvasCoordinates(center.mathX, mathY);
   const radius = computeRadius(eucCenter);
   
@@ -78,29 +75,12 @@ function computeGeodesicCenter(anchor1, anchor2) {
 }
 
 function computeGeodesicRadius(anchor, center, getMathCoordinates) {
-  // const { mathX } = getMathCoordinatesOld(center, VERTICAL_AXIS_HEIGHT);
   const { mathX } = getMathCoordinates(center, VERTICAL_AXIS_HEIGHT);
   return Math.sqrt((anchor.mathX - mathX) ** 2 + (anchor.mathY) ** 2);
 }
 
 function computeAnchorAngle(anchor, center, getMathCoordinates) {
-  // const { mathX, mathY } = getMathCoordinatesOld(center, VERTICAL_AXIS_HEIGHT);
   const { mathX, mathY } = getMathCoordinates(center, VERTICAL_AXIS_HEIGHT);
   const angle = Math.atan2(anchor.mathY - mathY, anchor.mathX - mathX);
   return (angle * 180) / Math.PI;
 }
-
-// function getSegmentInfo(coords, nextCoords) {
-//   const xSeparation = nextCoords.canvasX - coords.canvasX;
-//   const isACircle = Math.abs(xSeparation) > EPSILON;
-  
-//   const center = isACircle ? computeGeodesicCenter(nextCoords, coords) : Infinity;
-//   const radius = isACircle ? computeGeodesicRadius(nextCoords, center) : Infinity;
-
-//   const rightAnchor = xSeparation > 0 ? nextCoords : coords;
-//   const leftAnchor = xSeparation > 0 ? coords : nextCoords;
-//   const rotationAngle = computeAnchorAngle(rightAnchor, center);
-//   const arcAngle = computeAnchorAngle(leftAnchor, center) - rotationAngle;
-
-//   return { isACircle, center, radius, arcAngle, rotationAngle, coords, nextCoords };
-// }
