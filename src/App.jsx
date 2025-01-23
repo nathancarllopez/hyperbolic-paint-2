@@ -29,8 +29,8 @@ export default function App() {
   const [activeCoords, setActiveCoords] = useState([]);
   const [shapeIsDragging, setShapeIsDragging] = useState(false);
   const [canvasIsDragging, setCanvasIsDragging] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [animationShape, setAnimationShape] = useState(null);
+  // const [isAnimating, setIsAnimating] = useState(false);
+  // const [animationShape, setAnimationShape] = useState(null);
   const [originX, setOriginX] = useState(INITIAL_ORIGIN_X);
   const [selectedShape, setSelectedShape] = useState(null);
   //#endregion
@@ -81,7 +81,7 @@ export default function App() {
   //#region
   function handleFabClick(fabDrawerName) {
     setActiveCoords([]);
-    setAnimationShape(null);
+    // setAnimationShape(null);
     setOpenDrawer(fabDrawerName);
   }
 
@@ -180,21 +180,21 @@ export default function App() {
       mouseXRef.current = currCoords.canvasX;
       setOriginX(prev => prev + dispX);
 
-      if (animationShape !== null) {
-        setAnimationShape(recipe => {
-          switch(recipe.name) {
-            case 'rotation': {
-              return {
-                ...recipe,
-                params: {
-                  ...recipe.params,
-                  canvasX: recipe.params.canvasX + dispX
-                }
-              };
-            };
-          };
-        });
-      };
+      // if (animationShape !== null) {
+      //   setAnimationShape(recipe => {
+      //     switch(recipe.name) {
+      //       case 'rotation': {
+      //         return {
+      //           ...recipe,
+      //           params: {
+      //             ...recipe.params,
+      //             canvasX: recipe.params.canvasX + dispX
+      //           }
+      //         };
+      //       };
+      //     };
+      //   });
+      // };
       if (activeCoords.length > 0) {
         setActiveCoords(prev => {
           const dispActiveCoords = prev.map(recipe => {
@@ -310,15 +310,15 @@ export default function App() {
   function handleShapeDragMove(event, newParams, recipeId) {
     setMouseCoords(() => getMouseCoordinates(event));
 
-    if (animationShape && animationShape.id === recipeId) {
-      setAnimationShape(recipe => {
-        return {
-          ...recipe,
-          params: newParams
-        }
-      })      
-      return;
-    }
+    // if (animationShape && animationShape.id === recipeId) {
+    //   setAnimationShape(recipe => {
+    //     return {
+    //       ...recipe,
+    //       params: newParams
+    //     }
+    //   })      
+    //   return;
+    // }
 
     transformCurrentDrawings(recipe => {
       if (recipe.id !== recipeId) {
@@ -336,9 +336,9 @@ export default function App() {
     setShapeIsDragging(false);
   }
   
-  function handlePlayPauseClick() {
-    setIsAnimating(is => !is);
-  }
+  // function handlePlayPauseClick() {
+  //   setIsAnimating(is => !is);
+  // }
 
   function handleDeleteClick() {
     if (selectedShape) {
@@ -481,10 +481,10 @@ export default function App() {
       }
     })();
 
-    if (ANIMATION_TOOLNAMES.includes(toolbarState.clickTool)) {
-      setAnimationShape(drawing);
-      return;
-    }
+    // if (ANIMATION_TOOLNAMES.includes(toolbarState.clickTool)) {
+    //   setAnimationShape(drawing);
+    //   return;
+    // }
 
     if (drawing.isActive) {
       setActiveCoords(coords => [ ...coords, drawing ]);
@@ -516,13 +516,13 @@ export default function App() {
       }
     }
 
-    if (animationShape !== null) {
-      const idMatch = animationShape.id === idToDelete;
-      if (idMatch) {
-        setAnimationShape(null);
-        return;
-      }
-    }
+    // if (animationShape !== null) {
+    //   const idMatch = animationShape.id === idToDelete;
+    //   if (idMatch) {
+    //     setAnimationShape(null);
+    //     return;
+    //   }
+    // }
 
     setHistory(prev => {
       const { snapshots, currIdx } = prev;
@@ -543,7 +543,8 @@ export default function App() {
   //#region
   const selectedId = selectedShape?.getParent().id();
   const { snapshots, currIdx } = history;
-  const drawings = [ ...snapshots[currIdx], ...activeCoords, animationShape ].filter(x => x !== null).map(
+  // const drawings = [ ...snapshots[currIdx], ...activeCoords, animationShape ].filter(x => x !== null).map(
+  const drawings = [ ...snapshots[currIdx], ...activeCoords ].filter(x => x !== null).map(
     (recipe) => {
       const { name, id, isActive, params } = recipe;
       const isSelected = selectedId === id;
@@ -659,23 +660,23 @@ export default function App() {
             />
           )
         }
-        case 'rotation': {
-          return (
-            <CenterOfRotation
-              key={id}
-              id={id}
-              clickedX={params.canvasX}
-              clickedY={params.canvasY}
-              getMathCoordinates={getMathCoordinates}
-              getCanvasCoordinates={getCanvasCoordinates}
-              onDragStart={handleShapeDragStart}
-              onDragMove={handleShapeDragMove}
-              onDragEnd={handleShapeDragEnd}
-              isAnimating={isAnimating}
-              isSelected={isSelected}
-            />
-          )
-        }
+        // case 'rotation': {
+        //   return (
+        //     <CenterOfRotation
+        //       key={id}
+        //       id={id}
+        //       clickedX={params.canvasX}
+        //       clickedY={params.canvasY}
+        //       getMathCoordinates={getMathCoordinates}
+        //       getCanvasCoordinates={getCanvasCoordinates}
+        //       onDragStart={handleShapeDragStart}
+        //       onDragMove={handleShapeDragMove}
+        //       onDragEnd={handleShapeDragEnd}
+        //       isAnimating={isAnimating}
+        //       isSelected={isSelected}
+        //     />
+        //   )
+        // }
         default: {
           throw new Error(`Unexpected shape name: ${name}`);
         }
@@ -734,14 +735,14 @@ export default function App() {
         { drawings }
       </HypCanvas>
 
-      {
+      {/* {
         ANIMATION_TOOLNAMES.includes(toolbarState.clickTool) &&
           <AnimationControls
             isAnimating={isAnimating}
             playPauseDisabled={animationShape === null}
             onPlayPauseClick={handlePlayPauseClick}
           />
-      }
+      } */}
 
       <FabDrawer
         isOpen={openDrawer === 'toolbar'}
