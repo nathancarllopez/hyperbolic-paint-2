@@ -8,7 +8,10 @@ import Row from "react-bootstrap/Row";
 import Stack from "react-bootstrap/Stack";
 import ToggleButton from "react-bootstrap/ToggleButton";
 
-export default function Toolbar({ toolbarState, onClick }) {
+export default function Toolbar({
+  toolbarState,
+  onClick
+}) {
   const drawingButtons = [
     { name: 'point', label: 'Pt'},
     { name: 'geodesic', label: 'L' },
@@ -18,9 +21,9 @@ export default function Toolbar({ toolbarState, onClick }) {
     { name: 'polygon', label: 'Pg'},
   ];
 
-  const animationButtons = [
-    { name: 'rotation', label: 'R' }
-  ];
+  // const animationButtons = [
+  //   { name: 'rotation', label: 'R' }
+  // ];
 
   const settings = [
     { name: 'showMouseCoords', label: 'Show Mouse Coordinates' },
@@ -58,7 +61,7 @@ export default function Toolbar({ toolbarState, onClick }) {
       </Card>
       
       {/* Animation buttons */}
-      <Card>
+      {/* <Card>
         <Card.Body>
           <Card.Title>Animations</Card.Title>
           <Container>
@@ -78,27 +81,6 @@ export default function Toolbar({ toolbarState, onClick }) {
                   </Col>
                 ))
               }
-            </Row>
-          </Container>
-        </Card.Body>
-      </Card>
-
-      {/* <Card>
-        <Card.Body>
-          <Card.Title>Style</Card.Title>
-          <Container>
-            <Row>
-              <Col>
-                <ToggleButton
-                  id="select"
-                  value={"select"}
-                  type="radio"
-                  name="clickTool"
-                  onChange={() => onClick('clickTool', 'select')}
-                >
-                  S
-                </ToggleButton>
-              </Col>
             </Row>
           </Container>
         </Card.Body>
