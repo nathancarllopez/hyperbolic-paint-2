@@ -43,7 +43,6 @@ export default function App() {
   const mouseXRef = useRef(null);
   const holdStartTimeRef = useRef(null);
   const animationFrameRef = useRef(null);
-  // const selectedShapeRef = useRef(null);
   const clickedShapeRef = useRef(null);
   //#endregion
 
@@ -62,14 +61,10 @@ export default function App() {
         handleUndoClick();
       }
 
-      // const selectedShape = selectedShapeRef.current;
       const deletePressed = ['Delete', 'Backspace'].includes(event.key);
       if (selectedShape && deletePressed) {
         event.preventDefault();
-
         const selectedId = selectedShape.id();
-        // selectedShapeRef.current = null;
-
         deleteDrawingInHistory(selectedId);
         setSelectedShape(null);
       }
@@ -90,16 +85,13 @@ export default function App() {
   function handleFabClick(fabDrawerName) {
     setActiveCoords([]);
     setAnimationShape(null);
-
     setOpenDrawer(fabDrawerName);
   }
 
   function handleToolbarClick(toolName, toolValue, closeDrawer = true) {
     setToolbarState({ ...toolbarState, [toolName]: toolValue });
 
-    if (closeDrawer) {
-      setOpenDrawer(null);
-    }
+    if (closeDrawer) setOpenDrawer(null);
   }
 
   function handleUndoClick() {
@@ -133,40 +125,23 @@ export default function App() {
     const someShapeClicked = konvaShape !== konvaStage && shapeId;
     if (someShapeClicked) {
       if (selectedShape === null) {
-        console.log('nothing selected');
         clickedShapeRef.current = konvaShape;
         return;
       }
 
       const clickedSelectedShape = selectedShape.getParent().id() === shapeId;
       if (clickedSelectedShape) {
-        console.log('clicked selected shape');
         setSelectedShape(null);
         clickedShapeRef.current = null;
         return;
       }
 
-      console.log('clicked different shape');
-      // setSelectedShape(null);
       clickedShapeRef.current = konvaShape;
       return;
     }
-
-    // // console.log('shape', konvaShape);
-    // // console.log('shape id', shapeId);
-    // if (konvaShape !== konvaStage && shapeId) {
-    //   if (clickedShapeRef.current)
-
-    //   clickedShapeRef.current = konvaShape;
-    //   // selectedShapeRef.current = konvaShape;
-    //   // setSelectedShape(konvaShape);
-    //   return;
-    // }
     
-    console.log('clicked stage');
     setSelectedShape(null)
     clickedShapeRef.current = null;
-    // selectedShapeRef.current = null;
     holdStartTimeRef.current = performance.now();
     animationFrameRef.current = requestAnimationFrame(checkHoldDuration);
 
@@ -198,21 +173,15 @@ export default function App() {
     const currCoords = getMouseCoordinates(event)
     setMouseCoords(currCoords);
 
-    // const selectedShape = selectedShapeRef.current;
-    // if (selectedShape !== null) {
-    //   console.log('selected shape');
-    //   console.log(selectedShape);
-    // }
-
-    if (mouseXRef.current === null || selectedShape !==  null) {
-      return;
-    }
+    if (mouseXRef.current === null || selectedShape !==  null) return;
 
     const dispX = currCoords.canvasX - mouseXRef.current;
     const noClickedShape = clickedShapeRef.current === null;
     if (dispX !== 0 && noClickedShape) {
       setCanvasIsDragging(true);
+      mouseXRef.current = currCoords.canvasX;
       setOriginX(prev => prev + dispX);
+
       if (animationShape !== null) {
         setAnimationShape(recipe => {
           switch(recipe.name) {
@@ -300,7 +269,6 @@ export default function App() {
           }
         }
       });
-      mouseXRef.current = currCoords.canvasX;
     }
   }
 
@@ -326,16 +294,6 @@ export default function App() {
       setSelectedShape(clickedShapeRef.current);
       clickedShapeRef.current = null;
     }
-
-    // const konvaShape = event.target;
-    // const shapeId = konvaShape.getParent()?.id()
-    // const konvaStage = konvaShape.getStage();
-    // // console.log('shape', konvaShape);
-    // // console.log('shape id', shapeId);
-    // if (konvaShape !== konvaStage && shapeId) {
-    //   // selectedShapeRef.current = konvaShape;
-    //   setSelectedShape(konvaShape);
-    // }
   }
 
   function handleMouseLeave() {
@@ -343,13 +301,11 @@ export default function App() {
   }
 
   function handleShapeDragStart() {
-    console.log('drag start')
     setShapeIsDragging(true);
     copyCurrentDrawings();
   }
 
   function handleShapeDragMove(event, newParams, recipeId) {
-    console.log('dragging');
     setMouseCoords(() => getMouseCoordinates(event));
 
     if (animationShape && animationShape.id === recipeId) {
@@ -383,10 +339,8 @@ export default function App() {
   }
 
   function handleDeleteClick() {
-    // const selectedShape = selectedShapeRef.current;
     if (selectedShape) {
       const selectedId = selectedShape.getParent().id();
-      // selectedShapeRef.current = null;
       deleteDrawingInHistory(selectedId);
       setSelectedShape(null)
     }
@@ -585,9 +539,7 @@ export default function App() {
    * Here we turn the shape data into components to be children of HypCanvas
    */
   //#region
-  // const selectedId = selectedShapeRef.current?.getParent().id()
   const selectedId = selectedShape?.getParent().id();
-  // console.log(selectedId);
   const { snapshots, currIdx } = history;
   const drawings = [ ...snapshots[currIdx], ...activeCoords, animationShape ].filter(x => x !== null).map(
     (recipe) => {
