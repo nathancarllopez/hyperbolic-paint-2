@@ -1,15 +1,25 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Button, Card, Col, Container, Row } from "react-bootstrap";
 import Draggable from "react-draggable";
 
-export default function HistoryControls({
+export default function StyleControls({
   deleteDisabled,
   onDeleteClick,
 }) {
   const nodeRef = useRef(null);
+  const cardBodyRef = useRef(null);
+
+  useEffect(() => {
+    const cardBody = cardBodyRef.current;
+    const cardBodyStyles = getComputedStyle(cardBody);
+    const width = parseFloat(cardBodyStyles.getPropertyValue('width'));
+    
+    const card = nodeRef.current;
+    card.style.left = `${(window.innerWidth - width) / 2}px`;
+  }, []);
 
   const buttonInfo = [
-    { key: 'undo', label: "Undo", disabled: deleteDisabled, onClick: onDeleteClick },
+    { key: 'delete', label: "Delete", disabled: deleteDisabled, onClick: onDeleteClick },
   ];
 
   return (
@@ -18,13 +28,13 @@ export default function HistoryControls({
         ref={nodeRef}
         style={{
           position: "fixed",
-          bottom: 0,
-          left: 0,
+          top: 0,
+          // left: "10rem",
           margin: "1rem",
           zIndex: "10"
         }}
       >
-        <Card.Body>
+        <Card.Body ref={cardBodyRef}>
           <Container>
             <Row>
               {
