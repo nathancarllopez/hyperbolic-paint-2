@@ -94,7 +94,7 @@ export default function Geodesic({
           />
       }
       <Point
-        id={id + '-*-fixed'}
+        // id={id + '-*-fixed'}
         clickedX={fixedAnchor.canvasX}
         clickedY={fixedAnchor.canvasY}
         getMathCoordinates={getMathCoordinates}
@@ -104,7 +104,7 @@ export default function Geodesic({
         color={FIXED_ANCHOR_COLOR}
       />
       <Point
-        id={id + '-*-free'}
+        // id={id + '-*-free'}
         clickedX={freeAnchor.canvasX}
         clickedY={freeAnchor.canvasY}
         getMathCoordinates={getMathCoordinates}
