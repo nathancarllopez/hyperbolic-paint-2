@@ -1,8 +1,6 @@
-import { useState } from "react";
-import { CIRCLE_ANCHOR_COLOR, CIRCLE_CENTER_COLOR, CIRCLE_COLOR, EPSILON, POINT_RADIUS, VERTICAL_AXIS_HEIGHT } from "../../constants";
+import { CIRCLE_ANCHOR_COLOR, CIRCLE_CENTER_COLOR, CIRCLE_COLOR, POINT_RADIUS, SELECTED_SHAPE_COLOR, VERTICAL_AXIS_HEIGHT } from "../../constants";
 import { Circle, Group } from "react-konva";
 import Point from "./Point";
-// import { getCanvasCoordinatesOld, getMathCoordinatesOld } from "../math/coordinates";
 import { getHypCircleParams } from "../math/geometry";
 
 export default function HypCircle({
@@ -14,16 +12,16 @@ export default function HypCircle({
   onDragStart,
   onDragMove,
   onDragEnd,
+  isSelected,
   color = CIRCLE_COLOR
 }) {
   const center = clicked1.params;
   const anchor = clicked2.params;
-  // const { eucCenter, radius } = getHypCircleParams(center, anchor);
+  const circleColor = isSelected ? SELECTED_SHAPE_COLOR : color;
   const { eucCenter, radius } = getHypCircleParams(center, anchor, getCanvasCoordinates);
 
   function handleCenterDragMove(event) {
     const konvaCenter = event.target;
-    // const centerCoords = getMathCoordinatesOld(konvaCenter.x(), konvaCenter.y());
     const centerCoords = getMathCoordinates(konvaCenter.x(), konvaCenter.y());
 
     const dispVector = {
@@ -32,9 +30,6 @@ export default function HypCircle({
     };
     const anchorY = centerCoords.canvasY + dispVector.y;
     const awayFromBoundary = anchorY < VERTICAL_AXIS_HEIGHT - POINT_RADIUS;
-    // const anchorCoords = awayFromBoundary ?
-    //   getMathCoordinatesOld(centerCoords.canvasX + dispVector.x, centerCoords.canvasY + dispVector.y) : 
-    //   { ...clicked2.params };
     const anchorCoords = awayFromBoundary ?
       getMathCoordinates(centerCoords.canvasX + dispVector.x, centerCoords.canvasY + dispVector.y) : 
       { ...clicked2.params };
@@ -57,13 +52,6 @@ export default function HypCircle({
   function handleAnchorDragMove(event) {
     const konvaAnchor = event.target;
 
-    // const newParams = {
-    //   clicked1: { ...clicked1 },
-    //   clicked2: {
-    //     ...clicked2,
-    //     params: getMathCoordinatesOld(konvaAnchor.x(), konvaAnchor.y()),
-    //   }
-    // }
     const newParams = {
       clicked1: { ...clicked1 },
       clicked2: {
@@ -82,10 +70,9 @@ export default function HypCircle({
         x={eucCenter.canvasX}
         y={eucCenter.canvasY}
         radius={radius}
-        stroke={color}
+        stroke={circleColor}
       />
       <Point
-        id={id + '-*-center'}
         clickedX={center.canvasX}
         clickedY={center.canvasY}
         getMathCoordinates={getMathCoordinates}
@@ -95,7 +82,6 @@ export default function HypCircle({
         color={CIRCLE_CENTER_COLOR}
       />
       <Point
-        id={id + '-*-anchor'}
         clickedX={anchor.canvasX}
         clickedY={anchor.canvasY}
         getMathCoordinates={getMathCoordinates}

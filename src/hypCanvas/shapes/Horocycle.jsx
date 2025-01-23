@@ -1,8 +1,6 @@
-import { useEffect, useState } from "react";
 import { Circle, Group } from "react-konva";
-import { HOROCYCLE_ANCHOR_COLOR, HOROCYCLE_CENTER_COLOR, HOROCYCLE_COLOR, POINT_RADIUS } from "../../constants";
+import { HOROCYCLE_ANCHOR_COLOR, HOROCYCLE_CENTER_COLOR, HOROCYCLE_COLOR, SELECTED_SHAPE_COLOR } from "../../constants";
 import Point from "./Point";
-// import { getCanvasCoordinatesOld, getMathCoordinatesOld, getMouseCoordinatesOld } from "../math/coordinates";
 
 export default function Horocycle({
   id,
@@ -13,18 +11,17 @@ export default function Horocycle({
   onDragStart,
   onDragMove,
   onDragEnd,
+  isSelected,
   color = HOROCYCLE_COLOR
 }) {
-  // const center = getMathCoordinatesOld(clickedX, clickedY);
   const center = getMathCoordinates(clickedX, clickedY);
-  // const anchor = getCanvasCoordinatesOld(center.mathX, 2 * center.mathY);
   const anchor = getCanvasCoordinates(center.mathX, 2 * center.mathY);
   const radius = center.mathY;
+  const horocycleColor = isSelected ? SELECTED_SHAPE_COLOR : color;
 
   function handleCenterDragMove(event) {
     const konvaCenter = event.target;
 
-    // const newParams = getMathCoordinatesOld(konvaCenter.x(), konvaCenter.y());
     const newParams = getMathCoordinates(konvaCenter.x(), konvaCenter.y());
     const recipeId = konvaCenter.getParent().id();
     
@@ -37,8 +34,6 @@ export default function Horocycle({
       konvaAnchor.x(center.canvasX);
     }
 
-    // const anchorCoords = getMathCoordinatesOld(konvaAnchor.x(), konvaAnchor.y());
-    // const newParams = getCanvasCoordinatesOld(anchorCoords.mathX, Math.floor(anchorCoords.mathY / 2));
     const anchorCoords = getMathCoordinates(konvaAnchor.x(), konvaAnchor.y());
     const newParams = getCanvasCoordinates(anchorCoords.mathX, Math.floor(anchorCoords.mathY / 2));
     const recipeId = konvaAnchor.getParent().id();
@@ -52,10 +47,9 @@ export default function Horocycle({
         x={center.canvasX}
         y={center.canvasY}
         radius={radius}
-        stroke={color}
+        stroke={horocycleColor}
       />
       <Point
-        id={id + '-*-center'}
         clickedX={center.canvasX}
         clickedY={center.canvasY}
         getMathCoordinates={getMathCoordinates}
@@ -65,7 +59,6 @@ export default function Horocycle({
         color={HOROCYCLE_CENTER_COLOR}
       />
       <Point
-        id={id + '-*-anchor'}
         clickedX={anchor.canvasX}
         clickedY={anchor.canvasY}
         getMathCoordinates={getMathCoordinates}

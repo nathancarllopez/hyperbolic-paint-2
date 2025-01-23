@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Circle, Group } from "react-konva";
-import { DRAGGING_POINT_COLOR, POINT_COLOR, POINT_RADIUS, FOCUSED_POINT_COLOR, POINT_SHADOW_COLOR, SELECTED_POINT_COLOR, VERTICAL_AXIS_HEIGHT } from "../../constants";
-// import { getCanvasCoordinatesOld, getMathCoordinatesOld, getMouseCoordinatesOld } from "../math/coordinates";
+import { POINT_COLOR, POINT_RADIUS, FOCUSED_POINT_COLOR, SELECTED_SHAPE_COLOR, VERTICAL_AXIS_HEIGHT } from "../../constants";
 
 export default function Point({
   id = "",
+  name = undefined,
   clickedX,
   clickedY,
   getMathCoordinates,
@@ -13,16 +13,17 @@ export default function Point({
   onDragStart = () => {},
   onDragMove = () => {},
   onDragEnd = () => {},
-  isSelected,
+  isSelected = false,
 }) {
   const [isFocused, setIsFocused] = useState(false);
   const pointColor = isFocused ? FOCUSED_POINT_COLOR :
-                     isSelected ? SELECTED_POINT_COLOR :
+                     isSelected ? SELECTED_SHAPE_COLOR :
                      color;
 
-  const KonvaCircle = (shapeId) => (
+  const KonvaCircle = (shapeId, shapeName) => (
     <Circle
-      id={id}
+      id={shapeId}
+      name={shapeName}
       x={clickedX}
       y={clickedY}
       radius={POINT_RADIUS}
@@ -42,7 +43,6 @@ export default function Point({
 
   function handleDragMove(event) {
     const konvaPoint = event.target;
-    // const { canvasX, canvasY } = getMathCoordinatesOld(konvaPoint.x(), konvaPoint.y());
     const { canvasX, canvasY } = getMathCoordinates(konvaPoint.x(), konvaPoint.y());
     if (canvasY > VERTICAL_AXIS_HEIGHT - POINT_RADIUS) {
       konvaPoint.y(VERTICAL_AXIS_HEIGHT - POINT_RADIUS)
@@ -54,7 +54,6 @@ export default function Point({
       konvaPoint.x(window.innerWidth - POINT_RADIUS)
     }
 
-    // const newParams = getMathCoordinatesOld(konvaPoint.x(), konvaPoint.y());
     const newParams = getMathCoordinates(konvaPoint.x(), konvaPoint.y());
     const recipeId = konvaPoint.id();
 
@@ -65,7 +64,9 @@ export default function Point({
     <>
       {/* We do this so that all shapes (including those that have Points as subcomponents) can access their id via shape.getParent().id() */}
       {
-        id !== "" ? <Group id={id}>{KonvaCircle(undefined)}</Group> : KonvaCircle(id)
+        id !== "" ?
+          <Group id={id}>{KonvaCircle(undefined, name)}</Group> :
+          KonvaCircle(id, name)
       }
     </>
   );

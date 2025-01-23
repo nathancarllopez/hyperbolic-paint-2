@@ -1,8 +1,6 @@
 import { Arc, Group, Line } from "react-konva";
-import { EPSILON, GEODESIC_COLOR, POINT_RADIUS, FREE_ANCHOR_COLOR, FIXED_ANCHOR_COLOR, VERTICAL_AXIS_HEIGHT } from "../../constants";
+import { GEODESIC_COLOR, POINT_RADIUS, FREE_ANCHOR_COLOR, FIXED_ANCHOR_COLOR, VERTICAL_AXIS_HEIGHT, SELECTED_SHAPE_COLOR } from "../../constants";
 import Point from "./Point";
-import { useState } from "react";
-// import { getCanvasCoordinatesOld, getMathCoordinatesOld, getMouseCoordinatesOld } from "../math/coordinates";
 import { getGeodesicParams } from "../math/geometry";
 
 export default function Geodesic({
@@ -13,16 +11,16 @@ export default function Geodesic({
   onDragStart,
   onDragMove,
   onDragEnd,
+  isSelected,
   color = GEODESIC_COLOR
 }) {
   const fixedAnchor = clicked1.params;
   const freeAnchor = clicked2.params;
-
+  const geodesicColor = isSelected ? SELECTED_SHAPE_COLOR : color;
   const { isACircle, center, radius } = getGeodesicParams(fixedAnchor, freeAnchor, getMathCoordinates);
 
   function handleFixedAnchorDragMove(event) {
     const konvaFixedAnchor = event.target;
-    // const fixedAnchorCoords = getMathCoordinatesOld(konvaFixedAnchor.x(), konvaFixedAnchor.y());
     const fixedAnchorCoords = getMathCoordinates(konvaFixedAnchor.x(), konvaFixedAnchor.y());
 
     const dispVector = {
@@ -31,9 +29,6 @@ export default function Geodesic({
     };
     const freeAnchorY = fixedAnchorCoords.canvasY + dispVector.y;
     const awayFromBoundary = freeAnchorY < VERTICAL_AXIS_HEIGHT - POINT_RADIUS;
-    // const freeAnchorCoords = awayFromBoundary ?
-    //   getMathCoordinatesOld(fixedAnchorCoords.canvasX + dispVector.x, fixedAnchorCoords.canvasY + dispVector.y) :
-    //   { ...clicked2.params };
     const freeAnchorCoords = awayFromBoundary ?
       getMathCoordinates(fixedAnchorCoords.canvasX + dispVector.x, fixedAnchorCoords.canvasY + dispVector.y) :
       { ...clicked2.params };
@@ -56,13 +51,6 @@ export default function Geodesic({
   function handleFreeAnchorDragMove(event) {
     const konvaFreeAnchor = event.target;
 
-    // const newParams = {
-    //   clicked1: { ...clicked1 },
-    //   clicked2: {
-    //     ...clicked2,
-    //     params: getMathCoordinatesOld(konvaFreeAnchor.x(), konvaFreeAnchor.y())
-    //   }
-    // };
     const newParams = {
       clicked1: { ...clicked1 },
       clicked2: {
@@ -85,16 +73,15 @@ export default function Geodesic({
             angle={180}
             innerRadius={radius}
             outerRadius={radius}
-            stroke={color}
+            stroke={geodesicColor}
             clockwise
           /> :
           <Line
             points={[fixedAnchor.canvasX, VERTICAL_AXIS_HEIGHT, fixedAnchor.canvasX, 0]}
-            stroke={color}
+            stroke={geodesicColor}
           />
       }
       <Point
-        // id={id + '-*-fixed'}
         clickedX={fixedAnchor.canvasX}
         clickedY={fixedAnchor.canvasY}
         getMathCoordinates={getMathCoordinates}
@@ -104,7 +91,6 @@ export default function Geodesic({
         color={FIXED_ANCHOR_COLOR}
       />
       <Point
-        // id={id + '-*-free'}
         clickedX={freeAnchor.canvasX}
         clickedY={freeAnchor.canvasY}
         getMathCoordinates={getMathCoordinates}

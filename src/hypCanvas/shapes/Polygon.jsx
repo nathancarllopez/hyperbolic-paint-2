@@ -1,9 +1,7 @@
-import { useState } from "react";
-import { POLYGON_COLOR, FIXED_ANCHOR_COLOR, FREE_ANCHOR_COLOR, EPSILON, VERTICAL_AXIS_HEIGHT, POINT_RADIUS } from "../../constants";
+import { POLYGON_COLOR, FIXED_ANCHOR_COLOR, FREE_ANCHOR_COLOR, VERTICAL_AXIS_HEIGHT, POINT_RADIUS, SELECTED_SHAPE_COLOR } from "../../constants";
 import Point from "./Point";
 import { getPolygonParams } from "../math/geometry";
 import { Arc, Group, Line } from "react-konva";
-// import { getMathCoordinatesOld } from "../math/coordinates";
 
 export default function Polygon({
   id,
@@ -12,16 +10,16 @@ export default function Polygon({
   onDragStart,
   onDragMove,
   onDragEnd,
+  isSelected,
   color = POLYGON_COLOR
 }) {
   const fixedAnchor = allClicked[0].params;
   const freeAnchors = allClicked.slice(1).map(recipe => recipe.params);
-
+  const polygonColor = isSelected ? SELECTED_SHAPE_COLOR : color;
   const sides = getPolygonParams([fixedAnchor, ...freeAnchors], getMathCoordinates);
 
   function handleFixedAnchorDragMove(event) {
     const konvaFixedAnchor = event.target;
-    // const fixedAnchorCoords = getMathCoordinatesOld(konvaFixedAnchor.x(), konvaFixedAnchor.y());
     const fixedAnchorCoords = getMathCoordinates(konvaFixedAnchor.x(), konvaFixedAnchor.y());
 
     const draggedAnchorRecipes = freeAnchors.map((anchor, idx) => {
@@ -31,9 +29,6 @@ export default function Polygon({
       };
       const anchorY = fixedAnchorCoords.canvasY + dispVector.y;
       const awayFromBoundary = anchorY < VERTICAL_AXIS_HEIGHT - POINT_RADIUS;
-      // const anchorCoords = awayFromBoundary ?
-      //   getMathCoordinatesOld(fixedAnchorCoords.canvasX + dispVector.x, fixedAnchorCoords.canvasY + dispVector.y) :
-      //   { ...allClicked[idx + 1].params };
       const anchorCoords = awayFromBoundary ?
         getMathCoordinates(fixedAnchorCoords.canvasX + dispVector.x, fixedAnchorCoords.canvasY + dispVector.y) :
         { ...allClicked[idx + 1].params };
@@ -55,17 +50,15 @@ export default function Polygon({
 
   function handleFreeAnchorDragMove(event) {
     const konvaFreeAnchor = event.target;
-    const anchorId = konvaFreeAnchor.id().split('-*-').pop();
+    console.log(konvaFreeAnchor);
+    const anchorIdx = konvaFreeAnchor.name();
+    console.log(anchorIdx);
 
     const draggedAnchorRecipes = freeAnchors.map((_, idx) => {
-      if (idx.toString() !== anchorId) {
+      if (idx.toString() !== anchorIdx) {
         return allClicked[idx + 1];
       }
 
-      // return {
-      //   ...allClicked[idx + 1],
-      //   params: getMathCoordinatesOld(konvaFreeAnchor.x(), konvaFreeAnchor.y())
-      // }
       return {
         ...allClicked[idx + 1],
         params: getMathCoordinates(konvaFreeAnchor.x(), konvaFreeAnchor.y())
@@ -89,7 +82,7 @@ export default function Polygon({
               y={VERTICAL_AXIS_HEIGHT}
               innerRadius={side.radius}
               outerRadius={side.radius}
-              stroke={color}
+              stroke={polygonColor}
               angle={360 - side.arcAngle}
               rotation={-side.rotationAngle}
               clockwise
@@ -97,12 +90,11 @@ export default function Polygon({
             <Line
               key={idx}
               points={[side.anchor1.canvasX, side.anchor1.canvasY, side.anchor2.canvasX, side.anchor2.canvasY]}
-              stroke={color}
+              stroke={polygonColor}
             />
         ))
       }
       <Point
-        id={id + '-*-fixed'}
         clickedX={fixedAnchor.canvasX}
         clickedY={fixedAnchor.canvasY}
         getMathCoordinates={getMathCoordinates}
@@ -115,7 +107,7 @@ export default function Polygon({
         freeAnchors.map((anchor, idx) => (
           <Point
             key={idx}
-            id={id + '-*-free-*-' + idx.toString()}
+            name={idx.toString()}
             clickedX={anchor.canvasX}
             clickedY={anchor.canvasY}
             getMathCoordinates={getMathCoordinates}
