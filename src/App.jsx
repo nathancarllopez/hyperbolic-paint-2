@@ -287,17 +287,18 @@ export default function App() {
       addDrawingToHistory(coords);
     }
 
-    setCanvasIsDragging(false);
-    mouseXRef.current = null;
-
-    if (clickedShapeRef.current !== null) {
+    if (clickedShapeRef.current !== null && !shapeIsDragging && !canvasIsDragging) {
       setSelectedShape(clickedShapeRef.current);
       clickedShapeRef.current = null;
     }
+
+    setCanvasIsDragging(false);
+    mouseXRef.current = null;
   }
 
   function handleMouseLeave() {
     setMouseCoords(null);
+    mouseXRef.current = null;
   }
 
   function handleShapeDragStart() {
