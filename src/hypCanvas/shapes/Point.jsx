@@ -4,7 +4,7 @@ import { DRAGGING_POINT_COLOR, POINT_COLOR, POINT_RADIUS, FOCUSED_POINT_COLOR, P
 // import { getCanvasCoordinatesOld, getMathCoordinatesOld, getMouseCoordinatesOld } from "../math/coordinates";
 
 export default function Point({
-  id,
+  id = "",
   clickedX,
   clickedY,
   getMathCoordinates,
@@ -13,12 +13,32 @@ export default function Point({
   onDragStart = () => {},
   onDragMove = () => {},
   onDragEnd = () => {},
+  isSelected,
 }) {
   const [isFocused, setIsFocused] = useState(false);
+  const pointColor = isFocused ? FOCUSED_POINT_COLOR :
+                     isSelected ? SELECTED_POINT_COLOR :
+                     color;
 
-  function handleDragStart() {
-    onDragStart();
-  }
+  const KonvaCircle = (shapeId) => (
+    <Circle
+      id={id}
+      x={clickedX}
+      y={clickedY}
+      radius={POINT_RADIUS}
+  
+      stroke={ pointColor }
+      fill={ pointColor }
+  
+      onMouseEnter={() => setIsFocused(true)}
+      onMouseLeave={() => setIsFocused(false)}
+      
+      draggable={isDraggable}
+      onDragStart={onDragStart}
+      onDragMove={handleDragMove}
+      onDragEnd={onDragEnd}
+    />
+  );
 
   function handleDragMove(event) {
     const konvaPoint = event.target;
@@ -41,27 +61,12 @@ export default function Point({
     onDragMove(event, newParams, recipeId);
   }
 
-  function handleDragEnd() {
-    onDragEnd();
-  }
-
   return (
-    <Circle
-      id={id}
-      x={clickedX}
-      y={clickedY}
-      radius={POINT_RADIUS}
-
-      stroke={ isFocused ? FOCUSED_POINT_COLOR : color }
-      fill={ isFocused ? FOCUSED_POINT_COLOR : color }
-
-      onMouseEnter={() => setIsFocused(true)}
-      onMouseLeave={() => setIsFocused(false)}
-      
-      draggable={isDraggable}
-      onDragStart={handleDragStart}
-      onDragMove={handleDragMove}
-      onDragEnd={handleDragEnd}
-    />
+    <>
+      {/* We do this so that all shapes (including those that have Points as subcomponents) can access their id via shape.getParent().id() */}
+      {
+        id !== "" ? <Group id={id}>{KonvaCircle(undefined)}</Group> : KonvaCircle(id)
+      }
+    </>
   );
 }
