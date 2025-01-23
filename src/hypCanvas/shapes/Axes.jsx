@@ -2,28 +2,6 @@ import { Group, Line, Text } from "react-konva"
 import { AXES_COLOR, AXES_LABEL_FONT_SIZE, AXES_STROKE_WIDTH, AXIS_TICK_LENGTH, AXIS_TICK_SEPARATION, VERTICAL_AXIS_HEIGHT } from "../../constants";
 import { Fragment } from "react";
 
-// export default function Axes({
-//   originCoords,
-// }) {
-//   return (
-//     <Group id="axes">
-//       {/** Horizontal */}
-//       <Line 
-//         points={[0, VERTICAL_AXIS_HEIGHT, window.innerWidth, VERTICAL_AXIS_HEIGHT]}
-//         stroke={AXES_COLOR}
-//         strokeWidth={AXES_STROKE_WIDTH}
-//       />
-
-//       {/** Vertical */}
-//       <Line
-//         points={[originCoords.canvasX, 0, originCoords.canvasX, VERTICAL_AXIS_HEIGHT]}
-//         stroke={AXES_COLOR}
-//         strokeWidth={AXES_STROKE_WIDTH}
-//       />
-//     </Group>
-//   );
-// }
-
 export default function Axes({
   // originCoords,
   originX,
@@ -56,7 +34,7 @@ export default function Axes({
   }
 
   return (
-    <Group id="axes">
+    <Group>
       {/** Horizontal */}
       <Line 
         points={[0, VERTICAL_AXIS_HEIGHT, window.innerWidth, VERTICAL_AXIS_HEIGHT]}
