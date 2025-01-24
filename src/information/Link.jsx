@@ -10,6 +10,7 @@ export default function Link({
     negCurv: "https://encyclopediaofmath.org/wiki/Negative_curvature,_surface_of",
     geod: "https://en.wikipedia.org/wiki/Geodesic",
     github: "https://github.com/nathancarllopez/hyperbolic-paint-2",
+    escher: "https://en.wikipedia.org/wiki/Circle_Limit_III"
   }
 
   return (
