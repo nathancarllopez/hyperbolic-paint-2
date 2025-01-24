@@ -1,10 +1,10 @@
-import { EPSILON, VERTICAL_AXIS_HEIGHT } from "../../constants";
+import { EPSILON, VERTICAL_AXIS_HEIGHT } from "../../util/constants";
 
-export function getGeodesicParams(anchor1, anchor2, getMathCoordinates) {
+export function getGeodesicParams(anchor1, anchor2, getMathCoordinates, getCanvasCoordinates) {
   const xSeparation = anchor2.canvasX - anchor1.canvasX;
   const isACircle = Math.abs(xSeparation) > EPSILON;
 
-  const center = isACircle ? computeGeodesicCenter(anchor1, anchor2) : Infinity;
+  const center = isACircle ? computeGeodesicCenter(anchor1, anchor2, getCanvasCoordinates) : Infinity;
   const radius = isACircle ? computeGeodesicRadius(anchor1, center, getMathCoordinates) : Infinity;
 
   return { isACircle, center, radius }
@@ -37,8 +37,8 @@ export function getHypCircleParams(center, anchor, getCanvasCoordinates) {
   return { eucCenter, radius };
 }
 
-export function getSegmentParams(anchor1, anchor2, getMathCoordinates) {
-  const { isACircle, center, radius } = getGeodesicParams(anchor1, anchor2, getMathCoordinates);
+export function getSegmentParams(anchor1, anchor2, getMathCoordinates, getCanvasCoordinates) {
+  const { isACircle, center, radius } = getGeodesicParams(anchor1, anchor2, getMathCoordinates, getCanvasCoordinates);
 
   const xSeparation = anchor2.canvasX - anchor1.canvasX;
   const rightAnchor = xSeparation < 0 ? anchor1 : anchor2;
@@ -49,19 +49,20 @@ export function getSegmentParams(anchor1, anchor2, getMathCoordinates) {
   return { isACircle, center, radius, rotationAngle, arcAngle, anchor1, anchor2 };
 }
 
-export function getPolygonParams(anchors, getMathCoordinates) {
+export function getPolygonParams(anchors, getMathCoordinates, getCanvasCoordinates) {
   return anchors.map((anchor, idx) => {
     const nextAnchor = anchors[(idx + 1) % anchors.length];
-    return getSegmentParams(anchor, nextAnchor, getMathCoordinates);
+    return getSegmentParams(anchor, nextAnchor, getMathCoordinates, getCanvasCoordinates);
   });
 }
 
-function computeGeodesicCenter(anchor1, anchor2) {
+function computeGeodesicCenter(anchor1, anchor2, getCanvasCoordinates) {
   const deltaY = anchor2.mathY - anchor1.mathY;
   const midpointX = (anchor2.mathX + anchor1.mathX) / 2;
 
   if (Math.abs(deltaY) < EPSILON) {
-    return midpointX + window.innerWidth / 2;
+    const centerCoords = getCanvasCoordinates(midpointX, 0);
+    return centerCoords.canvasX;
   }
 
   const deltaX = anchor2.mathX - anchor1.mathX;
@@ -69,9 +70,10 @@ function computeGeodesicCenter(anchor1, anchor2) {
   const slope = deltaY / deltaX;
   const perpSlope = -1 / slope;
   const yIntercept = midpointY - perpSlope * midpointX;
-  const mathCenter = -yIntercept / perpSlope;
-  
-  return mathCenter + window.innerWidth / 2;
+  const centerMathX = -yIntercept / perpSlope;
+
+  const centerCoords = getCanvasCoordinates(centerMathX, 0);
+  return centerCoords.canvasX;
 }
 
 function computeGeodesicRadius(anchor, center, getMathCoordinates) {

@@ -1,5 +1,5 @@
 import { Arc, Group, Line } from "react-konva";
-import { GEODESIC_COLOR, POINT_RADIUS, FREE_ANCHOR_COLOR, FIXED_ANCHOR_COLOR, VERTICAL_AXIS_HEIGHT, SELECTED_SHAPE_COLOR } from "../../constants";
+import { GEODESIC_COLOR, POINT_RADIUS, FREE_ANCHOR_COLOR, FIXED_ANCHOR_COLOR, VERTICAL_AXIS_HEIGHT, SELECTED_SHAPE_COLOR } from "../../util/constants";
 import Point from "./Point";
 import { getGeodesicParams } from "../math/geometry";
 
@@ -8,6 +8,7 @@ export default function Geodesic({
   clicked1,
   clicked2,
   getMathCoordinates,
+  getCanvasCoordinates,
   onDragStart,
   onDragMove,
   onDragEnd,
@@ -17,7 +18,7 @@ export default function Geodesic({
   const fixedAnchor = clicked1.params;
   const freeAnchor = clicked2.params;
   const geodesicColor = isSelected ? SELECTED_SHAPE_COLOR : color;
-  const { isACircle, center, radius } = getGeodesicParams(fixedAnchor, freeAnchor, getMathCoordinates);
+  const { isACircle, center, radius } = getGeodesicParams(fixedAnchor, freeAnchor, getMathCoordinates, getCanvasCoordinates);
 
   function handleFixedAnchorDragMove(event) {
     const konvaFixedAnchor = event.target;

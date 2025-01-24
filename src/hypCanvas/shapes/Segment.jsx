@@ -1,5 +1,5 @@
 import { Arc, Group, Line } from "react-konva";
-import { SEGMENT_COLOR, VERTICAL_AXIS_HEIGHT, FREE_ANCHOR_COLOR, FIXED_ANCHOR_COLOR, POINT_RADIUS, SELECTED_SHAPE_COLOR } from "../../constants";
+import { SEGMENT_COLOR, VERTICAL_AXIS_HEIGHT, FREE_ANCHOR_COLOR, FIXED_ANCHOR_COLOR, POINT_RADIUS, SELECTED_SHAPE_COLOR } from "../../util/constants";
 import Point from "./Point";
 import { getSegmentParams } from "../math/geometry";
 
@@ -8,6 +8,7 @@ export default function Segment({
   clicked1,
   clicked2,
   getMathCoordinates,
+  getCanvasCoordinates,
   onDragStart,
   onDragMove,
   onDragEnd,
@@ -17,7 +18,7 @@ export default function Segment({
   const fixedAnchor = clicked1.params;
   const freeAnchor = clicked2.params;
   const segmentColor = isSelected ? SELECTED_SHAPE_COLOR : color;
-  const { isACircle, center, radius, rotationAngle, arcAngle } = getSegmentParams(fixedAnchor, freeAnchor, getMathCoordinates);
+  const { isACircle, center, radius, rotationAngle, arcAngle } = getSegmentParams(fixedAnchor, freeAnchor, getMathCoordinates, getCanvasCoordinates);
 
   function handleFixedAnchorDragMove(event) {
     const konvaFixedAnchor = event.target;

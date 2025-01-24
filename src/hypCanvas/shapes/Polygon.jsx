@@ -1,4 +1,4 @@
-import { POLYGON_COLOR, FIXED_ANCHOR_COLOR, FREE_ANCHOR_COLOR, VERTICAL_AXIS_HEIGHT, POINT_RADIUS, SELECTED_SHAPE_COLOR } from "../../constants";
+import { POLYGON_COLOR, FIXED_ANCHOR_COLOR, FREE_ANCHOR_COLOR, VERTICAL_AXIS_HEIGHT, POINT_RADIUS, SELECTED_SHAPE_COLOR } from "../../util/constants";
 import Point from "./Point";
 import { getPolygonParams } from "../math/geometry";
 import { Arc, Group, Line } from "react-konva";
@@ -7,6 +7,7 @@ export default function Polygon({
   id,
   allClicked,
   getMathCoordinates,
+  getCanvasCoordinates,
   onDragStart,
   onDragMove,
   onDragEnd,
@@ -16,7 +17,7 @@ export default function Polygon({
   const fixedAnchor = allClicked[0].params;
   const freeAnchors = allClicked.slice(1).map(recipe => recipe.params);
   const polygonColor = isSelected ? SELECTED_SHAPE_COLOR : color;
-  const sides = getPolygonParams([fixedAnchor, ...freeAnchors], getMathCoordinates);
+  const sides = getPolygonParams([fixedAnchor, ...freeAnchors], getMathCoordinates, getCanvasCoordinates);
 
   function handleFixedAnchorDragMove(event) {
     const konvaFixedAnchor = event.target;
