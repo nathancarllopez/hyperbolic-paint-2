@@ -8,7 +8,7 @@ export default function FabDrawer({
   onHide, 
   fabPlacement, 
   title, 
-  fabIcon, 
+  fabIcon,
   children
 }) {
   const drawerPlacement = (() => {
