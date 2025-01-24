@@ -1,13 +1,13 @@
 import './App.css'
 import { useEffect, useRef, useState } from 'react'
-import { ACTIVE_POINT_COLOR, ANIMATION_TOOLNAMES, HOLD_DURATION_THRESHOLD, INITIAL_ORIGIN_X, INITIAL_TOOLBARSTATE, VERTICAL_AXIS_HEIGHT } from './constants'
+import { ACTIVE_POINT_COLOR, ANIMATION_TOOLNAMES, HOLD_DURATION_THRESHOLD, INITIAL_ORIGIN_X, INITIAL_TOOLBARSTATE, VERTICAL_AXIS_HEIGHT } from './util/constants'
 import { generateId } from './util/generateId'
 
-import AnimationControls from './toolbar/AnimationControls'
+import AnimationControls from './floating controls/AnimationControls'
 import CenterOfRotation from './hypCanvas/animation shapes/CenterOfRotation'
 import FabDrawer from './fabDrawer/FabDrawer'
 import Geodesic from './hypCanvas/shapes/Geodesic'
-import HistoryControls from './toolbar/HistoryControls'
+import HistoryControls from './floating controls/HistoryControls'
 import Horocycle from './hypCanvas/shapes/Horocycle'
 import HypCanvas from './hypCanvas/HypCanvas'
 import HypCircle from './hypCanvas/shapes/HypCircle'
@@ -15,7 +15,8 @@ import Point from './hypCanvas/shapes/Point'
 import Polygon from './hypCanvas/shapes/Polygon'
 import Segment from './hypCanvas/shapes/Segment'
 import Toolbar from './toolbar/Toolbar'
-import StyleControls from './toolbar/StyleControls'
+import StyleControls from './floating controls/StyleControls'
+import Information from './information/Information'
 
 export default function App() {
   /**
@@ -608,6 +609,7 @@ export default function App() {
               clicked1={params.clicked1}
               clicked2={params.clicked2}
               getMathCoordinates={getMathCoordinates}
+              getCanvasCoordinates={getCanvasCoordinates}
               onDragStart={handleShapeDragStart}
               onDragMove={handleShapeDragMove}
               onDragEnd={handleShapeDragEnd}
@@ -639,6 +641,7 @@ export default function App() {
               clicked1={params.clicked1}
               clicked2={params.clicked2}
               getMathCoordinates={getMathCoordinates}
+              getCanvasCoordinates={getCanvasCoordinates}
               onDragStart={handleShapeDragStart}
               onDragMove={handleShapeDragMove}
               onDragEnd={handleShapeDragEnd}
@@ -653,6 +656,7 @@ export default function App() {
               id={id}
               allClicked={params.allClicked}
               getMathCoordinates={getMathCoordinates}
+              getCanvasCoordinates={getCanvasCoordinates}
               onDragStart={handleShapeDragStart}
               onDragMove={handleShapeDragMove}
               onDragEnd={handleShapeDragEnd}
@@ -701,7 +705,8 @@ export default function App() {
         title="Information"
         fabIcon="?"
       >
-        <p>Information</p>
+        {/* <p>Information</p> */}
+        <Information/>
       </FabDrawer>
 
       {
