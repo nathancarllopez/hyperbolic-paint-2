@@ -1,18 +1,7 @@
-import { useEffect, useState, useRef } from "react";
-import { Label, Layer, Stage, Tag, Text, Rect, Group } from "react-konva";
-import Konva from "konva";
+import { Layer, Stage, Text } from "react-konva";
 
 import Axes from "./shapes/Axes";
-import Geodesic from "./shapes/Geodesic";
-import Point from "./shapes/Point";
-import { ACTIVE_POINT_COLOR, CURSOR_COORD_COLOR, CURSOR_FONT_SIZE, HOLD_DURATION_THRESHOLD, VERTICAL_AXIS_HEIGHT } from "../util/constants";
-// import { getMathCoordinatesOld, getMouseCoordinatesOld } from "./math/coordinates";
-import Horocycle from "./shapes/Horocycle";
-import { generateId } from "../util/generateId";
-import HypCircle from "./shapes/HypCircle";
-import Segment from "./shapes/Segment";
-import Polygon from "./shapes/Polygon";
-import CenterOfRotation from "./animation shapes/CenterOfRotation";
+import { CURSOR_COORD_COLOR, CURSOR_FONT_SIZE } from "../util/constants";
 
 export default function HypCanvas({
   toolbarState,
