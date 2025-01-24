@@ -4,21 +4,23 @@ import Container from "react-bootstrap/Container";
 import FormCheck from 'react-bootstrap/FormCheck';
 import FormCheckInput from 'react-bootstrap/FormCheckInput';
 import FormCheckLabel from 'react-bootstrap/FormCheckLabel';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Row from "react-bootstrap/Row";
 import Stack from "react-bootstrap/Stack";
 import ToggleButton from "react-bootstrap/ToggleButton";
+import Tooltip from 'react-bootstrap/Tooltip';
 
 export default function Toolbar({
   toolbarState,
   onClick
 }) {
   const drawingButtons = [
-    { name: 'point', label: 'Pt'},
-    { name: 'geodesic', label: 'L' },
-    { name: 'circle', label: 'C' },
-    { name: 'horocycle', label: 'H' },
-    { name: 'segment', label: 'S' },
-    { name: 'polygon', label: 'Pg'},
+    { name: 'point', tooltip: "Point", label: 'Pt'},
+    { name: 'geodesic', tooltip: "Line", label: 'L' },
+    { name: 'circle', tooltip: "Circle", label: 'C' },
+    { name: 'horocycle', tooltip: "Horocycle", label: 'H' },
+    { name: 'segment', tooltip: "Line Segment", label: 'S' },
+    { name: 'polygon', tooltip: "Polygon", label: 'Pg'},
   ];
 
   // const animationButtons = [
@@ -38,20 +40,29 @@ export default function Toolbar({
       <Card>
         <Card.Body>
           <Card.Title>Shapes</Card.Title>
-          <Container>
-            <Row>
+          <Container bsPrefix="text-center">
+            <Row bsPrefix="row gy-3">
               {
-                drawingButtons.map(({ name, label }) => (
+                drawingButtons.map(({ name, tooltip, label }) => (
                   <Col key={name} bsPrefix="col-4">
-                    <ToggleButton
-                      id={name}
-                      value={name}
-                      type="radio"
-                      name="clickTool"
-                      onChange={() => onClick('clickTool', name)}
+                    <OverlayTrigger
+                      overlay={
+                        <Tooltip id={`${name}-tooltip`}>
+                          { tooltip }
+                        </Tooltip>
+                      }
                     >
-                      { label }
-                    </ToggleButton>
+                      <ToggleButton
+                        id={name}
+                        value={name}
+                        type="radio"
+                        name="clickTool"
+                        onChange={() => onClick('clickTool', name)}
+                        className="w-50"
+                      >
+                        { label }
+                      </ToggleButton>
+                    </OverlayTrigger>
                   </Col>
                 ))
               }
@@ -59,7 +70,7 @@ export default function Toolbar({
           </Container>
         </Card.Body>
       </Card>
-      
+
       {/* Animation buttons */}
       {/* <Card>
         <Card.Body>
