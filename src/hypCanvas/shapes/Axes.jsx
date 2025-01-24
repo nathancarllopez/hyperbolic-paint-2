@@ -1,5 +1,5 @@
 import { Group, Line, Text } from "react-konva"
-import { AXES_COLOR, AXES_LABEL_FONT_SIZE, AXES_STROKE_WIDTH, AXIS_TICK_LENGTH, AXIS_TICK_SEPARATION, VERTICAL_AXIS_HEIGHT } from "../../constants";
+import { AXES_COLOR, AXES_LABEL_FONT_SIZE, AXES_STROKE_WIDTH, AXIS_TICK_LENGTH, AXIS_TICK_SEPARATION, VERTICAL_AXIS_HEIGHT } from "../../util/constants";
 import { Fragment } from "react";
 
 export default function Axes({

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Circle, Group } from "react-konva";
-import { POINT_COLOR, POINT_RADIUS, FOCUSED_POINT_COLOR, SELECTED_SHAPE_COLOR, VERTICAL_AXIS_HEIGHT } from "../../constants";
+import { POINT_COLOR, POINT_RADIUS, FOCUSED_POINT_COLOR, SELECTED_SHAPE_COLOR, VERTICAL_AXIS_HEIGHT } from "../../util/constants";
 
 export default function Point({
   id = "",

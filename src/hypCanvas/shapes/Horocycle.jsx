@@ -1,5 +1,5 @@
 import { Circle, Group } from "react-konva";
-import { HOROCYCLE_ANCHOR_COLOR, HOROCYCLE_CENTER_COLOR, HOROCYCLE_COLOR, SELECTED_SHAPE_COLOR } from "../../constants";
+import { HOROCYCLE_ANCHOR_COLOR, HOROCYCLE_CENTER_COLOR, HOROCYCLE_COLOR, SELECTED_SHAPE_COLOR } from "../../util/constants";
 import Point from "./Point";
 
 export default function Horocycle({

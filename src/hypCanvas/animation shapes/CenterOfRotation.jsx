@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { CENTER_ROTATION_COLOR, DASH_LENGTH, DASH_SEPARATION, POINT_RADIUS, SELECTED_SHAPE_COLOR, VERTICAL_AXIS_HEIGHT } from "../../constants";
+import { CENTER_ROTATION_COLOR, DASH_LENGTH, DASH_SEPARATION, POINT_RADIUS, SELECTED_SHAPE_COLOR, VERTICAL_AXIS_HEIGHT } from "../../util/constants";
 import Point from "../shapes/Point";
 import { getHypCircleParams } from "../math/geometry";
 import { Circle, Group } from "react-konva";

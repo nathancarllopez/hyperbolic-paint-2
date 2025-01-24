@@ -1,4 +1,4 @@
-import { CIRCLE_ANCHOR_COLOR, CIRCLE_CENTER_COLOR, CIRCLE_COLOR, POINT_RADIUS, SELECTED_SHAPE_COLOR, VERTICAL_AXIS_HEIGHT } from "../../constants";
+import { CIRCLE_ANCHOR_COLOR, CIRCLE_CENTER_COLOR, CIRCLE_COLOR, POINT_RADIUS, SELECTED_SHAPE_COLOR, VERTICAL_AXIS_HEIGHT } from "../../util/constants";
 import { Circle, Group } from "react-konva";
 import Point from "./Point";
 import { getHypCircleParams } from "../math/geometry";

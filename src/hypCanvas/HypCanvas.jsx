@@ -5,7 +5,7 @@ import Konva from "konva";
 import Axes from "./shapes/Axes";
 import Geodesic from "./shapes/Geodesic";
 import Point from "./shapes/Point";
-import { ACTIVE_POINT_COLOR, CURSOR_COORD_COLOR, CURSOR_FONT_SIZE, HOLD_DURATION_THRESHOLD, VERTICAL_AXIS_HEIGHT } from "../constants";
+import { ACTIVE_POINT_COLOR, CURSOR_COORD_COLOR, CURSOR_FONT_SIZE, HOLD_DURATION_THRESHOLD, VERTICAL_AXIS_HEIGHT } from "../util/constants";
 // import { getMathCoordinatesOld, getMouseCoordinatesOld } from "./math/coordinates";
 import Horocycle from "./shapes/Horocycle";
 import { generateId } from "../util/generateId";
