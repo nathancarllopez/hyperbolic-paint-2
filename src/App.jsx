@@ -20,6 +20,11 @@ import Information from './information/Information'
 
 export default function App() {
   /**
+   * Constants
+   */
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+  /**
    * State
    */
   //#region
@@ -93,6 +98,7 @@ export default function App() {
   }
 
   function handleUndoClick() {
+    console.log('undo click')
     setHistory(prev => {
       const { currIdx } = prev;
       return {
@@ -113,13 +119,18 @@ export default function App() {
   }
 
   function handleMouseDown(event) {
-    const outOfBounds = mouseCoords && mouseCoords.mathY < 0
+    event.evt.preventDefault();
+
+    const clickCoords = getMouseCoordinates(event);
+    const outOfBounds = clickCoords.mathY < 0;
     if (outOfBounds) return;
-    mouseXRef.current = mouseCoords.canvasX;
+
+    setMouseCoords(isTouchDevice ? null : clickCoords);
+    mouseXRef.current = clickCoords.canvasX;
 
     const konvaShape = event.target;
-    const shapeId = konvaShape.getParent()?.id()
     const konvaStage = konvaShape.getStage();
+    const shapeId = konvaShape.getParent()?.id()
     const someShapeClicked = konvaShape !== konvaStage && shapeId;
     if (someShapeClicked) {
       if (selectedShape === null) {
@@ -150,14 +161,14 @@ export default function App() {
         cancelAnimationFrame(animationFrameRef.current);
         animationFrameRef.current = null;
 
-        const draggingCanvas = mouseXRef.current !== mouseCoords.canvasX;
+        const draggingCanvas = mouseXRef.current !== clickCoords.canvasX;
         if (toolbarState.clickTool === 'polygon' && activeCoords.length > 0 && !draggingCanvas) {
           if (activeCoords.length === 1) {
             // To do: Make this nicer, just a placeholder for now
             alert('you need to choose at least three points to make a polygon');
           } else {
             const longPress = true;
-            addDrawingToHistory(mouseCoords, longPress);
+            addDrawingToHistory(clickCoords, longPress);
           }
         }
 
@@ -275,8 +286,8 @@ export default function App() {
   }
 
   function handleMouseUp(event) {
-    const coords = getMouseCoordinates(event)
-    setMouseCoords(coords);
+    const endCoords = getMouseCoordinates(event)
+    setMouseCoords(isTouchDevice ? null : endCoords);
 
     if (animationFrameRef.current !== null) {
       cancelAnimationFrame(animationFrameRef.current);
@@ -286,7 +297,7 @@ export default function App() {
     const holdDuration = performance.now() - holdStartTimeRef.current;
     const wasHolding = holdDuration >= HOLD_DURATION_THRESHOLD;
     if (!shapeIsDragging && !canvasIsDragging && !wasHolding) {
-      addDrawingToHistory(coords);
+      addDrawingToHistory(endCoords);
     }
 
     if (clickedShapeRef.current !== null && !shapeIsDragging && !canvasIsDragging) {
@@ -309,7 +320,8 @@ export default function App() {
   }
 
   function handleShapeDragMove(event, newParams, recipeId) {
-    setMouseCoords(() => getMouseCoordinates(event));
+    const currCoords = getMouseCoordinates(event);
+    setMouseCoords(currCoords);
 
     // if (animationShape && animationShape.id === recipeId) {
     //   setAnimationShape(recipe => {
@@ -517,14 +529,6 @@ export default function App() {
       }
     }
 
-    // if (animationShape !== null) {
-    //   const idMatch = animationShape.id === idToDelete;
-    //   if (idMatch) {
-    //     setAnimationShape(null);
-    //     return;
-    //   }
-    // }
-
     setHistory(prev => {
       const { snapshots, currIdx } = prev;
       const drawingsTillCurrent = snapshots.slice(0, currIdx + 1);
@@ -705,7 +709,6 @@ export default function App() {
         title="Information"
         fabIcon="?"
       >
-        {/* <p>Information</p> */}
         <Information/>
       </FabDrawer>
 
