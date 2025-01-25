@@ -1,36 +1,18 @@
-import { useRef } from "react";
-import Button from "react-bootstrap/Button";
-import Card from "react-bootstrap/Card";
-import Container from "react-bootstrap/Container";
-import Draggable from "react-draggable";
+import FloatingControlPanel from "./FloatingControlPanel";
 
 export default function AnimationControls({
   isAnimating,
   playPauseDisabled,
   onPlayPauseClick,
 }) {
-  const nodeRef = useRef(null);
+  const buttonInfo = [
+    { key: 'playPause', disabled: playPauseDisabled, onPress: onPlayPauseClick, label: isAnimating ? "Pause" : "Play" }
+  ];
 
   return (
-    <Draggable nodeRef={nodeRef}>
-      <Card
-        ref={nodeRef}
-        style={{
-          position: "fixed",
-          bottom: 0,
-          right: 0,
-          margin: "1rem",
-          zIndex: "10"
-        }}
-      >
-        <Card.Body>
-          <Container>
-            <Button disabled={playPauseDisabled} onClick={onPlayPauseClick}>
-              { isAnimating ? 'Pause' : 'Play' }
-            </Button>
-          </Container>
-        </Card.Body>
-      </Card>
-    </Draggable>
+    <FloatingControlPanel
+      buttonInfo={buttonInfo}
+      placement="top-middle"
+    />
   )
 }
