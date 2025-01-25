@@ -2,6 +2,8 @@ Welcome to Hyperbolic Paint!
 
 To do:
 - Test on mobile and adapt any parts that don't work right
+  - Tooltips flash when you change tools
+  - Cursor coordinates are underneath my thumb while I drag, making them hard to read
 
 Planned features:
 - Zooming in and out.
