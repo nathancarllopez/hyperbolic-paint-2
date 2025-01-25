@@ -26,8 +26,8 @@ export const DASH_LENGTH = 10;
 export const DASH_SEPARATION = 5;
 export const INITIAL_TOOLBARSTATE = {
   // clickTool: 'horocycle',
-  // clickTool: 'point',
-  clickTool: 'geodesic',
+  clickTool: 'point',
+  // clickTool: 'geodesic',
   // clickTool: 'circle',
   // clickTool: 'segment',
   // clickTool: 'polygon',
