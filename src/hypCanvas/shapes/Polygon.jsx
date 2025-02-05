@@ -13,7 +13,8 @@ export default function Polygon({
   onDragEnd,
   isSelected,
   color,
-  strokeWidth
+  strokeWidth,
+  anchorRadius
 }) {
   const fixedAnchor = allClicked[0].params;
   const freeAnchors = allClicked.slice(1).map(recipe => recipe.params);
@@ -110,6 +111,7 @@ export default function Polygon({
         color={FIXED_ANCHOR_COLOR}
         strokeWidth={strokeWidth}
         isSelected={isSelected}
+        radius={anchorRadius}
       />
       {
         freeAnchors.map((anchor, idx) => (
@@ -125,6 +127,7 @@ export default function Polygon({
             color={FREE_ANCHOR_COLOR}
             strokeWidth={strokeWidth}
             isSelected={isSelected}
+            radius={anchorRadius}
           />
         ))
       }

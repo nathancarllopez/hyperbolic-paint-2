@@ -14,6 +14,7 @@ export default function Horocycle({
   isSelected,
   color,
   strokeWidth,
+  anchorRadius
 }) {
   const center = getMathCoordinates(clickedX, clickedY);
   const anchor = getCanvasCoordinates(center.mathX, 2 * center.mathY);
@@ -73,6 +74,7 @@ export default function Horocycle({
         color={HOROCYCLE_ANCHOR_COLOR}
         strokeWidth={strokeWidth}
         isSelected={isSelected}
+        radius={anchorRadius}
       />
     </Group>
   );

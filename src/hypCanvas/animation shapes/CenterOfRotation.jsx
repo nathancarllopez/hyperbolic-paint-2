@@ -16,6 +16,7 @@ export default function CenterOfRotation({
   isAnimating,
   isSelected,
   animationSpeed,
+  anchorRadius
 }) {
   const bdryCircleRef = useRef(null);
 
@@ -77,6 +78,7 @@ export default function CenterOfRotation({
         color={CENTER_ROTATION_COLOR}
         strokeWidth={1}
         isSelected={isSelected}
+        radius={anchorRadius}
       />
     </Group>
   );

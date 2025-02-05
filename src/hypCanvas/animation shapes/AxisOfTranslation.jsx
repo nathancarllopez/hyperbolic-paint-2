@@ -16,6 +16,7 @@ export default function AxisOfTranslation({
   isSelected,
   isAnimating,
   animationSpeed,
+  anchorRadius
 }) {
   const circleOrLineRef = useRef(null);
 
@@ -142,6 +143,7 @@ export default function AxisOfTranslation({
         color={FIXED_ANCHOR_COLOR}
         strokeWidth={1}
         isSelected={isSelected}
+        radius={anchorRadius}
       />
       <Point
         clickedX={freeAnchor.canvasX}
@@ -153,6 +155,7 @@ export default function AxisOfTranslation({
         color={FREE_ANCHOR_COLOR}
         strokeWidth={1}
         isSelected={isSelected}
+        radius={anchorRadius}
       />
     </Group>
   );

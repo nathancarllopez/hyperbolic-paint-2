@@ -14,7 +14,8 @@ export default function Segment({
   onDragEnd,
   isSelected,
   color,
-  strokeWidth
+  strokeWidth,
+  anchorRadius
 }) {
   const fixedAnchor = clicked1.params;
   const freeAnchor = clicked2.params;
@@ -98,6 +99,7 @@ export default function Segment({
         color={FIXED_ANCHOR_COLOR}
         strokeWidth={strokeWidth}
         isSelected={isSelected}
+        radius={anchorRadius}
       />
       <Point 
         clickedX={freeAnchor.canvasX}
@@ -109,6 +111,7 @@ export default function Segment({
         color={FREE_ANCHOR_COLOR}
         strokeWidth={strokeWidth}
         isSelected={isSelected}
+        radius={anchorRadius}
       />
     </Group>
   );

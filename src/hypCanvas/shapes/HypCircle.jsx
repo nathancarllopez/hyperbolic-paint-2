@@ -14,7 +14,8 @@ export default function HypCircle({
   onDragEnd,
   isSelected,
   color,
-  strokeWidth
+  strokeWidth,
+  anchorRadius
 }) {
   const center = clicked1.params;
   const anchor = clicked2.params;
@@ -85,6 +86,7 @@ export default function HypCircle({
         color={CIRCLE_CENTER_COLOR}
         strokeWidth={strokeWidth}
         isSelected={isSelected}
+        radius={anchorRadius}
       />
       <Point
         clickedX={anchor.canvasX}
@@ -96,6 +98,7 @@ export default function HypCircle({
         color={CIRCLE_ANCHOR_COLOR}
         strokeWidth={strokeWidth}
         isSelected={isSelected}
+        radius={anchorRadius}
       />
     </Group>
   );
