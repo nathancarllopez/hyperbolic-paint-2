@@ -3,8 +3,6 @@ import ToastContainer from "react-bootstrap/ToastContainer";
 import { TOAST_DELAY } from "../util/constants";
 
 export default function Toaster({
-  // toastToShow,
-  // setToastToShow,
   activeToasts,
   setActiveToasts,
   settings
