@@ -1,4 +1,6 @@
-import { Button, Form, Stack } from "react-bootstrap";
+import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Form";
+import Stack from "react-bootstrap/Stack";
 import FloatingDraggableCard from "../util/FloatingDraggableCard";
 import { ANIMATION_TOOLNAMES } from "../util/constants";
 
