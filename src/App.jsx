@@ -1,7 +1,7 @@
 import './App.css';
 import { useEffect, useRef, useState } from 'react';
 
-import { ANIMATION_TOOLNAMES, INITIAL_SETTINGS } from './util/constants';
+import { ANIMATION_TOOLNAMES, INITIAL_ORIGIN_COORDS, INITIAL_SETTINGS } from './util/constants';
 
 import FabDrawer from './fabDrawer/FabDrawer';
 import HypCanvas from './hypCanvas/HypCanvas';
@@ -25,8 +25,7 @@ export default function App() {
   const [drawingColor, setDrawingColor] = useState("#FFFFFF");
   const [drawingWidth, setDrawingWidth] = useState(2);
   const [openDropdown, setOpenDropdown] = useState(null);
-  // const [screenOrientation, setScreenOrientation] = useState(screen.orientation.type);
-  // const [canvasDimensions, setCanvasDimensions] = useState({ heigth: window.innerHeight, width: window.innerWidth });
+  const [originCoords, setOriginCoords] = useState(INITIAL_ORIGIN_COORDS);
   //#endregion
 
   // console.log(canvasDimensions);
@@ -99,6 +98,8 @@ export default function App() {
         openDropdown={openDropdown}
         setOpenDropdown={setOpenDropdown}
         // canvasDimensions={canvasDimensions}
+        originCoords={originCoords}
+        setOriginCoords={setOriginCoords}
       />
 
       {/* Style and Animation panels go here */}
@@ -123,6 +124,8 @@ export default function App() {
         <Settings
           settings={settings}
           setSettings={setSettings}
+          originCoords={originCoords}
+          setOriginCoords={setOriginCoords}
         />
       </FabDrawer>
     </div>
