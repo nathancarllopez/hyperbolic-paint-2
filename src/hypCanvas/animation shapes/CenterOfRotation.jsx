@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { CENTER_ROTATION_COLOR, DASH_LENGTH, DASH_SEPARATION, POINT_RADIUS, SELECTED_SHAPE_COLOR, VERTICAL_AXIS_HEIGHT } from "../../util/constants";
+import { ANIM_SPEED_DAMPENER, CENTER_ROTATION_COLOR, DASH_LENGTH, DASH_SEPARATION, POINT_RADIUS, SELECTED_SHAPE_COLOR, VERTICAL_AXIS_HEIGHT } from "../../util/constants";
 import Point from "../shapes/Point";
 import { getHypCircleParams } from "../math/geometry";
 import { Circle, Group } from "react-konva";
@@ -15,7 +15,7 @@ export default function CenterOfRotation({
   onDragEnd,
   isAnimating,
   isSelected,
-  color = CENTER_ROTATION_COLOR,
+  animationSpeed,
 }) {
   const bdryCircleRef = useRef(null);
 
@@ -32,7 +32,7 @@ export default function CenterOfRotation({
       }
 
       const currRotation = konvaBdryCircle.rotation();
-      konvaBdryCircle.rotation(currRotation - 1);
+      konvaBdryCircle.rotation(currRotation - animationSpeed);
 
       animationFrame = requestAnimationFrame(doRotation);
     }
@@ -40,12 +40,11 @@ export default function CenterOfRotation({
     return () => {
       cancelAnimationFrame(animationFrame);
     }
-  }, [isAnimating]);
+  }, [isAnimating, animationSpeed]);
 
   const center = getMathCoordinates(clickedX, clickedY);
   const anchorY = Math.min(VERTICAL_AXIS_HEIGHT - POINT_RADIUS, center.canvasY + window.innerHeight * 0.1)
   const anchor = getMathCoordinates(center.canvasX, anchorY);
-  const corColor = isSelected ? SELECTED_SHAPE_COLOR : color;
   const { eucCenter, radius } = getHypCircleParams(center, anchor, getCanvasCoordinates);
 
   function handleCenterDragMove(event) {
@@ -64,8 +63,9 @@ export default function CenterOfRotation({
         x={eucCenter.canvasX}
         y={eucCenter.canvasY}
         radius={radius}
-        stroke={corColor}
+        stroke={CENTER_ROTATION_COLOR}
         dash={[DASH_LENGTH, DASH_SEPARATION]}
+        listening={false}
       />
       <Point
         clickedX={center.canvasX}
@@ -74,7 +74,9 @@ export default function CenterOfRotation({
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
         onDragMove={handleCenterDragMove}
-        color={corColor}
+        color={CENTER_ROTATION_COLOR}
+        strokeWidth={1}
+        isSelected={isSelected}
       />
     </Group>
   );
