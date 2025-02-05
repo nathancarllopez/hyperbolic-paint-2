@@ -1,3 +1,4 @@
 export default function SuggestionError({}) {
-  return <p>Error!</p>
+  const message = "Error!";
+  return <p>{message}</p>
 }
