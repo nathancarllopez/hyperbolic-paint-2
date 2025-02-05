@@ -1,4 +1,8 @@
-import { ButtonGroup, Card, CloseButton, Col, Container, Dropdown, DropdownButton, Form, Row, Stack } from "react-bootstrap";
+import ButtonGroup from "react-bootstrap/ButtonGroup";
+import Col from "react-bootstrap/Col";
+import Dropdown from "react-bootstrap/Dropdown";
+import Form from "react-bootstrap/Form";
+import Row from "react-bootstrap/ButtonGroup";
 
 export default function StylesDropdown({
   drawingColor, setDrawingColor,
