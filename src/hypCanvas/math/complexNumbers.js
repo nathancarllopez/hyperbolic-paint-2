@@ -1,7 +1,9 @@
 // import { getCanvasCoordinatesOld } from "./coordinates";
 
+import { EPSILON } from "../../util/constants";
+
 export default class ComplexNumber{
-  constructor(re, im) {
+  constructor(re = 0, im = 0) {
     this.re = re;
     this.im = im;
     this.length = Math.sqrt(re ** 2 + im ** 2);
@@ -18,34 +20,32 @@ export default class ComplexNumber{
     return new ComplexNumber(conjugate.re / lengthSquared, conjugate.im / lengthSquared);
   }
 
-  plus(other) {
-    return new ComplexNumber(this.re + other.re, this.im + other.im);
+  plus(that) {
+    return new ComplexNumber(this.re + that.re, this.im + that.im);
   }
 
-  times(other) {
-    const prodRe = this.re * other.re - this.im * other.im;
-    const prodIm = this.re * other.im + this.im * other.re;
+  times(that) {
+    const prodRe = this.re * that.re - this.im * that.im;
+    const prodIm = this.re * that.im + this.im * that.re;
 
     return new ComplexNumber(prodRe, prodIm);
   }
 
-  dividedBy(other) {
-    return this.times(other.inverse());
+  dividedBy(that) {
+    return this.times(that.inverse());
   }
 
   scale(lambda) {
     return new ComplexNumber(lambda * this.re, lambda * this.im);
   }
 
+  isEqualTo(that) {
+    const reAreClose = Math.abs(this.re - that.re) < EPSILON;
+    const imAreClose = Math.abs(this.im - that.im) < EPSILON;
+    return reAreClose && imAreClose;
+  }
+
   static expITheta(theta) {
     return new ComplexNumber(Math.cos(theta), Math.sin(theta));
   }
-
-  // static pointToComplex(pointCoords) {
-  //   return new ComplexNumber(pointCoords.mathX, pointCoords.mathY);
-  // }
-
-  // static complexToPoint(complexNum) {
-  //   return getCanvasCoordinatesOld(complexNum.re, complexNum.im);
-  // }
 }
