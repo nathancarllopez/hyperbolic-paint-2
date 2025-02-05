@@ -1,3 +1,4 @@
 export default function SuggestionConfirm({}) {
-  return <p>Confirmed!</p>
+  const greeting = "Confirmed!";
+  return <p>{greeting}</p>
 }
