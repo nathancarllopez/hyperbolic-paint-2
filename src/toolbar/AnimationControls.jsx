@@ -12,6 +12,21 @@ export default function AnimationControls({
   const { snapshots, currIdx } = history;
   const animationShape = snapshots[currIdx].find(recipe => ANIMATION_TOOLNAMES.includes(recipe.name));
   const animationName = animationShape?.name || null;
+  const speedUnits = (() => {
+    if (animationName === null) return "n/a";
+
+    switch(animationName) {
+      case 'rotation': {
+        return "Degrees / second";
+      }
+      case 'translation': {
+        return "Units / second";
+      }
+      default: {
+        throw new Error(`Unexpected animation name: ${animationName}`)
+      }
+    }
+  })();
 
   return (
     <FloatingDraggableCard
@@ -31,9 +46,10 @@ export default function AnimationControls({
         <Form>
           <Form.Group controlId="animation-speed">
             <Form.Label>
-              Speed: {animationName === null ? "n/a" : animationSpeed}
+              Speed: ({speedUnits})
             </Form.Label>
-            <Form.Range
+            <Form.Control
+              type="number"
               disabled={animationName === null}
               onChange={event => setAnimationSpeed(event.target.value)}
               value={animationSpeed}
