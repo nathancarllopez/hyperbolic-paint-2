@@ -35,7 +35,8 @@ export default function HypCanvas({
   const [mouseCoords, setMouseCoords] = useState(null);
   const [shapeIsDragging, setShapeIsDragging] = useState(false);
   const [canvasIsDragging, setCanvasIsDragging] = useState(false);
-  const [originX, setOriginX] = useState(INITIAL_ORIGIN_X);
+  // const [originX, setOriginX] = useState(INITIAL_ORIGIN_X);
+  const [originCoords, setOriginCoords] = useState({ x: window.innerWidth / 2, y: 0.95 * window.innerHeight });
   const [canvasDimensions, setCanvasDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
   //#endregion
 
@@ -149,28 +150,49 @@ export default function HypCanvas({
 
     return {
       canvasX: x,
-      canvasY: y,
-      mathX: x - originX,
-      mathY: Math.floor(VERTICAL_AXIS_HEIGHT - y)
+      canvaY: y,
+      mathX: x - originCoords.x,
+      mathY: Math.floor(originCoords.y - y)
     };
+
+    // return {
+    //   canvasX: x,
+    //   canvasY: y,
+    //   mathX: x - originX,
+    //   mathY: Math.floor(VERTICAL_AXIS_HEIGHT - y)
+    // };
   }
 
   function getCanvasCoordinates(mathX, mathY) {
     return {
-      canvasX: mathX + originX,
-      canvasY: Math.floor(VERTICAL_AXIS_HEIGHT - mathY),
+      canvasX: mathX + originCoords.x,
+      canvasY: Math.floor(originCoords.y - mathY),
       mathX,
       mathY
     };
+
+    // return {
+    //   canvasX: mathX + originX,
+    //   canvasY: Math.floor(VERTICAL_AXIS_HEIGHT - mathY),
+    //   mathX,
+    //   mathY
+    // };
   }
 
   function getMathCoordinates(canvasX, canvasY) {
     return {
       canvasX,
       canvasY,
-      mathX: canvasX - originX,
-      mathY: Math.floor(VERTICAL_AXIS_HEIGHT - canvasY)
+      mathX: canvasX - originCoords.x,
+      mathY: Math.floor(originCoords.y - canvasY)
     };
+    
+    // return {
+    //   canvasX,
+    //   canvasY,
+    //   mathX: canvasX - originX,
+    //   mathY: Math.floor(VERTICAL_AXIS_HEIGHT - canvasY)
+    // };
   }
 
   function addDrawingToHistory(lastClickedCoords, longPress = false) {
@@ -519,7 +541,8 @@ export default function HypCanvas({
     if (Math.abs(dispX) > 2) {
       mouseXRef.current = currCoords.canvasX;
       setCanvasIsDragging(true);
-      setOriginX(prev => prev + dispX);
+      // setOriginX(prev => prev + dispX);
+      setOriginCoords(prev => ({ ...prev, x: prev.x + dispX }));
       transformAllDrawings(recipe => {
         const { name, params } = recipe;
 
@@ -870,9 +893,9 @@ export default function HypCanvas({
       {/* NEGATIVE Y-VALUES MASK */}
       <Layer>
         <Rect
-          y={VERTICAL_AXIS_HEIGHT}
+          y={originCoords.y}
           width={window.innerWidth}
-          height={window.innerHeight - VERTICAL_AXIS_HEIGHT}
+          height={window.innerHeight - originCoords.y}
           fill={"rgb(33, 37, 41)"}
           // opacity={1}
         />
@@ -881,7 +904,8 @@ export default function HypCanvas({
       {/* AXES */}
       <Layer>
         <Axes 
-          originX={originX}
+          // originX={originX}
+          originCoords={originCoords}
           getMathCoordinates={getMathCoordinates}
           settings={settings}
           zoomScale={zoomScale}
