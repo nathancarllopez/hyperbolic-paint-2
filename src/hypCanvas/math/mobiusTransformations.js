@@ -1,37 +1,6 @@
-import ComplexNumber from "./complexNumbers";
-// import { getCanvasCoordinatesOld } from "./coordinates";
+import ComplexNumber from "./complexNumbers.js";
 
-// function goUp(recipe) {
-//   const { mathX, mathY } = recipe.params;
-//   return {
-//     ...recipe,
-//     params: getCanvasCoordinatesOld(mathX + 100, mathY)
-//   }
-// }
-
-export function getMobiusAnimation(animationShape) {
-  return animationShape;
-  
-  // switch(animationShape.name) {
-  //   case 'rotation': {
-  //     return recipe => {
-  //       const theta = Math.PI / 2000000000;
-  //       const rotatingMobius = MobiusTransformation.rotateAbout300(theta);
-        
-  //       return {
-  //         ...recipe,
-  //         params: rotatingMobius.applyToPoint(recipe.params),
-  //       }
-  //     }
-  //   }
-
-  //   default: {
-  //     throw new Error(`Unexpected animation shape: ${animationShape.name}`);
-  //   }
-  // }
-}
-
-class MobiusTransformation {
+export default class MobiusTransformation {
   /**
    * All parameters are instances of the ComplexNumber class
    * see complexNumbers.js
@@ -41,6 +10,13 @@ class MobiusTransformation {
     this.b = b;
     this.c = c;
     this.d = d;
+    this.coefficients = [a, b, c, d];
+  }
+
+  toString() {
+    return this.coefficients.map(coeff => {
+      return `${coeff.re} + ${coeff.im}i`;
+    });
   }
 
   apply(z) {
@@ -50,19 +26,12 @@ class MobiusTransformation {
     return numerator.dividedBy(denominator);
   }
 
-  applyToPoint(pointCoords) {
+  applyToCoords(pointCoords) {
     const z = new ComplexNumber(pointCoords.mathX, pointCoords.mathY);
     const applied = this.apply(z);
 
     return applied;
   }
-
-  // applyToPoint(pointCoords) {
-  //   const z = ComplexNumber.pointToComplex(pointCoords);
-  //   const applied = this.apply(z);
-    
-  //   return ComplexNumber.complexToPoint(applied);
-  // }
 
   compose(that) {
     const newA = (this.a.times(that.a)).plus(this.b.times(that.c));
@@ -83,9 +52,9 @@ class MobiusTransformation {
   }
   
   static cayley() {
-    const a = new ComplexNumber(1, 0);
+    const a = new ComplexNumber(1);
     const b = new ComplexNumber(0, -1);
-    const c = new ComplexNumber(1, 0);
+    const c = new ComplexNumber(1);
     const d = new ComplexNumber(0, 1);
 
     return new MobiusTransformation(a, b, c, d);
@@ -93,9 +62,9 @@ class MobiusTransformation {
 
   static unitCircleRotation(theta) {
     const a = ComplexNumber.expITheta(theta);
-    const b = new ComplexNumber(0, 0);
-    const c = new ComplexNumber(0, 0);
-    const d = new ComplexNumber(0, 1);
+    const b = new ComplexNumber();
+    const c = new ComplexNumber();
+    const d = new ComplexNumber(1);
 
     return new MobiusTransformation(a, b, c, d);
   }
@@ -108,21 +77,71 @@ class MobiusTransformation {
     return cayleyInv.compose(unitCircleRotation.compose(cayley));
   }
 
-  static rotateAbout300(theta) {
+  static bringPointToI(coords) {
+    const { mathX } = coords;
+    const parabolic = new MobiusTransformation(
+      new ComplexNumber(1),
+      new ComplexNumber(-mathX, 0),
+      new ComplexNumber(),
+      new ComplexNumber(1)
+    );
+
+    const { im } = parabolic.applyToCoords(coords);
     const scaleDown = new MobiusTransformation(
-      new ComplexNumber(1/300, 0),
-      new ComplexNumber(0, 0),
-      new ComplexNumber(0, 0),
-      new ComplexNumber(1, 0)
+      new ComplexNumber(1 / im),
+      new ComplexNumber(),
+      new ComplexNumber(),
+      new ComplexNumber(1)
     );
-    const scaleUp = new MobiusTransformation(
-      new ComplexNumber(300, 0),
-      new ComplexNumber(0, 0),
-      new ComplexNumber(0, 0),
-      new ComplexNumber(1, 0)
-    );
+
+    return scaleDown.compose(parabolic);
+  }
+
+  static rotateAboutPoint(coords, theta) {
+    const bringToI = MobiusTransformation.bringPointToI(coords);
+    const bringToIInverse = bringToI.inverse();
     const rotateAboutI = MobiusTransformation.rotateAboutI(theta);
 
-    return scaleUp.compose(rotateAboutI.compose(scaleDown));
+    return bringToIInverse.compose(rotateAboutI.compose(bringToI));
+  }
+
+  static moveZeroTo(coords, scaleFactor) {
+    const p = new ComplexNumber(coords.mathX * scaleFactor, coords.mathY * scaleFactor);
+    const a = new ComplexNumber(1);
+    const b = p;
+    const c = p.conjugate();
+    const d = new ComplexNumber(1);
+
+    return new MobiusTransformation(a, b, c, d);
+  }
+
+  static translateBetweenPoints(coords1, coords2, scaleFactor) {
+    const bring1ToI = MobiusTransformation.bringPointToI(coords1);
+    const bring1ToIInv = bring1ToI.inverse();
+    const cayley = MobiusTransformation.cayley();
+    const cayleyInv = cayley.inverse();
+
+    const { re, im } = cayley.compose(bring1ToI).applyToCoords(coords2);
+    const moveZeroToP = MobiusTransformation.moveZeroTo({ mathX: re, mathY: im }, scaleFactor);
+
+    return bring1ToIInv.compose(cayleyInv.compose(moveZeroToP.compose(cayley.compose(bring1ToI))));
   }
 }
+
+// function testMobius(n) {
+//   const firstAngle = Math.PI / n;
+//   const angles = [];
+//   for (let i = 1; i <= n; i++) {
+//     angles.push(firstAngle * i);
+//   }
+//   console.log('angles', angles);
+
+//   const point = new ComplexNumber(10 * Math.random(), 10 * Math.random())
+//   console.log(point);
+//   angles.forEach(angle => {
+//     const rotation = MobiusTransformation.unitCircleRotation(angle);
+//     console.log(`rotation by ${angle}: ${rotation.toString()}`);
+//     const rotated = rotation.apply(point);
+//     console.log('rotated:', rotated);
+//   });
+// }
