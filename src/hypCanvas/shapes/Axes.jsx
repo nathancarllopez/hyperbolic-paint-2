@@ -3,32 +3,33 @@ import { AXES_COLOR, AXES_LABEL_FONT_SIZE, AXES_STROKE_WIDTH, AXIS_TICK_LENGTH, 
 import { Fragment } from "react";
 
 export default function Axes({
-  originX,
+  // originX,
+  originCoords,
   getMathCoordinates,
   settings,
   zoomScale
 }) {
   const vertTicks = [];
-  let position = VERTICAL_AXIS_HEIGHT;
+  let position = originCoords.y;
   while (position > 0) {
     position -= AXIS_TICK_SEPARATION;
-    const { mathY: label } = getMathCoordinates(originX, position);
+    const { mathY: label } = getMathCoordinates(originCoords.x, position);
     vertTicks.push({ position, label });
   }
 
   const posHorzTicks = [];
-  position = originX;
+  position = originCoords.x;
   while (position < window.innerWidth) {
     position += AXIS_TICK_SEPARATION;
-    const { mathX: label } = getMathCoordinates(position, VERTICAL_AXIS_HEIGHT);
+    const { mathX: label } = getMathCoordinates(position, originCoords.y);
     posHorzTicks.push({ position, label });
   }
 
   const negHorzTicks = [];
-  position = originX;
+  position = originCoords.x;
   while (position > 0) {
     position -= AXIS_TICK_SEPARATION;
-    const { mathX: label } = getMathCoordinates(position, VERTICAL_AXIS_HEIGHT);
+    const { mathX: label } = getMathCoordinates(position, originCoords.y);
     negHorzTicks.push({ position, label });
   }
 
@@ -36,7 +37,7 @@ export default function Axes({
     <Group>
       {/** Horizontal */}
       <Line 
-        points={[0, VERTICAL_AXIS_HEIGHT, window.innerWidth, VERTICAL_AXIS_HEIGHT]}
+        points={[0, originCoords.y, window.innerWidth, originCoords.y]}
         stroke={AXES_COLOR}
         strokeWidth={AXES_STROKE_WIDTH}
       />
@@ -44,12 +45,12 @@ export default function Axes({
         settings.showAxisTicks && posHorzTicks.map(({ position, label }, idx) => (
           <Fragment key={idx}>
             <Line
-              points={[position, VERTICAL_AXIS_HEIGHT - AXIS_TICK_LENGTH, position, VERTICAL_AXIS_HEIGHT + AXIS_TICK_LENGTH]}
+              points={[position, originCoords.y - AXIS_TICK_LENGTH, position, originCoords.y + AXIS_TICK_LENGTH]}
               stroke={AXES_COLOR}
             />
             <Text
               x={position + AXES_LABEL_FONT_SIZE / 2}
-              y={VERTICAL_AXIS_HEIGHT + AXIS_TICK_LENGTH + 5}
+              y={originCoords.y + AXIS_TICK_LENGTH + 5}
               text={label}
               fill={AXES_COLOR}
               fontSize={AXES_LABEL_FONT_SIZE}
@@ -62,12 +63,12 @@ export default function Axes({
         settings.showAxisTicks && negHorzTicks.map(({ position, label }, idx) => (
           <Fragment key={idx}>
             <Line
-              points={[position, VERTICAL_AXIS_HEIGHT - AXIS_TICK_LENGTH, position, VERTICAL_AXIS_HEIGHT + AXIS_TICK_LENGTH]}
+              points={[position, originCoords.y - AXIS_TICK_LENGTH, position, originCoords.y + AXIS_TICK_LENGTH]}
               stroke={AXES_COLOR}
             />
             <Text
               x={position + AXES_LABEL_FONT_SIZE / 2}
-              y={VERTICAL_AXIS_HEIGHT + AXIS_TICK_LENGTH + 5}
+              y={originCoords.y + AXIS_TICK_LENGTH + 5}
               text={label}
               fill={AXES_COLOR}
               fontSize={AXES_LABEL_FONT_SIZE}
@@ -79,7 +80,7 @@ export default function Axes({
 
       {/** Vertical */}
       <Line
-        points={[originX, 0, originX, VERTICAL_AXIS_HEIGHT]}
+        points={[originCoords.x, 0, originCoords.x, originCoords.y]}
         stroke={AXES_COLOR}
         strokeWidth={AXES_STROKE_WIDTH}
       />
@@ -87,11 +88,11 @@ export default function Axes({
         settings.showAxisTicks && vertTicks.map(({ position, label }, idx) => (
           <Fragment key={idx}>
             <Line
-              points={[originX - AXIS_TICK_LENGTH, position, originX + AXIS_TICK_LENGTH, position]}
+              points={[originCoords.x - AXIS_TICK_LENGTH, position, originCoords.x + AXIS_TICK_LENGTH, position]}
               stroke={AXES_COLOR}
             />
             <Text
-              x={originX + AXIS_TICK_LENGTH + 5}
+              x={originCoords.x + AXIS_TICK_LENGTH + 5}
               y={position - AXES_LABEL_FONT_SIZE / 2}
               text={label}
               fill={AXES_COLOR}
