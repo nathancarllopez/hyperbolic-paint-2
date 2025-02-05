@@ -150,7 +150,7 @@ export default function HypCanvas({
 
     return {
       canvasX: x,
-      canvaY: y,
+      canvasY: y,
       mathX: x - originCoords.x,
       mathY: Math.floor(originCoords.y - y)
     };
@@ -196,6 +196,8 @@ export default function HypCanvas({
   }
 
   function addDrawingToHistory(lastClickedCoords, longPress = false) {
+    // console.log(lastClickedCoords);
+
     const { snapshots, currIdx } = history;
     const currActiveCoords = snapshots[currIdx].filter(recipe => recipe.isActive);
 
@@ -700,6 +702,8 @@ export default function HypCanvas({
     const { name, id, isActive, isSelected, styles, params } = recipe;
     const { color, strokeWidth } = styles;
 
+    // console.log('id:', id);
+
     if (isActive) {
       return (
         <Point
@@ -710,6 +714,8 @@ export default function HypCanvas({
           getMathCoordinates={getMathCoordinates}
           color={ACTIVE_POINT_COLOR}
           strokeWidth={strokeWidth}
+          radius={settings.pointRadius}
+          // hitRadius={settings.pointHitRadius}
           isDraggable={false}
           isActive={isActive}
         />
@@ -729,6 +735,8 @@ export default function HypCanvas({
             getMathCoordinates={getMathCoordinates}
             color={color}
             strokeWidth={strokeWidth}
+            radius={settings.pointRadius}
+            // hitRadius={settings.pointHitRadius}
             onDragStart={handleShapeDragStart}
             onDragMove={handleShapeDragMove}
             onDragEnd={handleShapeDragEnd}
@@ -751,6 +759,7 @@ export default function HypCanvas({
             isSelected={isSelected}
             color={color}
             strokeWidth={strokeWidth}
+            anchorRadius={settings.pointRadius}
           />
         )
       }
@@ -769,6 +778,7 @@ export default function HypCanvas({
             isSelected={isSelected}
             color={color}
             strokeWidth={strokeWidth}
+            anchorRadius={settings.pointRadius}
           />
         )
       }
@@ -787,6 +797,7 @@ export default function HypCanvas({
             isSelected={isSelected}
             color={color}
             strokeWidth={strokeWidth}
+            anchorRadius={settings.pointRadius}
           />
         )
       }
@@ -805,6 +816,7 @@ export default function HypCanvas({
             isSelected={isSelected}
             color={color}
             strokeWidth={strokeWidth}
+            anchorRadius={settings.pointRadius}
           />
         )
       }
@@ -822,6 +834,7 @@ export default function HypCanvas({
             isSelected={isSelected}
             color={color}
             strokeWidth={strokeWidth}
+            anchorRadius={settings.pointRadius}
           />
         )
       }
@@ -840,6 +853,7 @@ export default function HypCanvas({
             isAnimating={isAnimating}
             isSelected={isSelected}
             animationSpeed={animationSpeed}
+            anchorRadius={settings.pointRadius}
           />
         )
       }
@@ -858,6 +872,7 @@ export default function HypCanvas({
             isAnimating={isAnimating}
             isSelected={isSelected}
             animationSpeed={animationSpeed}
+            anchorRadius={settings.pointRadius}
           />
         )
       }
