@@ -7,7 +7,6 @@ import Row from "react-bootstrap/ButtonGroup";
 export default function StylesDropdown({
   drawingColor, setDrawingColor,
   drawingWidth, setDrawingWidth,
-  // styleDropdownOpen, setStyleDropdownOpen
   openDropdown, setOpenDropdown
 }) {
   function handleDropdownToggle() {
@@ -60,9 +59,10 @@ export default function StylesDropdown({
             controlId="drawing-stroke-width"
             className="align-items-center"
           >
-            <Form.Label column>Width: { drawingWidth }</Form.Label>
+            <Form.Label column>Width: (px)</Form.Label>
             <Col>
-              <Form.Range
+              <Form.Control
+                type="number"  
                 value={drawingWidth}
                 onChange={(event) => setDrawingWidth(parseInt(event.target.value))}
                 min={1}
