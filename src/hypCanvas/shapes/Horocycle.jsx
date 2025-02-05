@@ -12,12 +12,13 @@ export default function Horocycle({
   onDragMove,
   onDragEnd,
   isSelected,
-  color = HOROCYCLE_COLOR
+  color,
+  strokeWidth,
 }) {
   const center = getMathCoordinates(clickedX, clickedY);
   const anchor = getCanvasCoordinates(center.mathX, 2 * center.mathY);
   const radius = center.mathY;
-  const horocycleColor = isSelected ? SELECTED_SHAPE_COLOR : color;
+  // const horocycleColor = isSelected ? SELECTED_SHAPE_COLOR : color;
 
   function handleCenterDragMove(event) {
     const konvaCenter = event.target;
@@ -47,7 +48,9 @@ export default function Horocycle({
         x={center.canvasX}
         y={center.canvasY}
         radius={radius}
-        stroke={horocycleColor}
+        stroke={color}
+        listening={false}
+        strokeWidth={strokeWidth}
       />
       <Point
         clickedX={center.canvasX}
@@ -57,6 +60,8 @@ export default function Horocycle({
         onDragEnd={onDragEnd}
         onDragMove={handleCenterDragMove}
         color={HOROCYCLE_CENTER_COLOR}
+        strokeWidth={strokeWidth}
+        isSelected={isSelected}
       />
       <Point
         clickedX={anchor.canvasX}
@@ -66,6 +71,8 @@ export default function Horocycle({
         onDragEnd={onDragEnd}
         onDragMove={handleAnchorDragMove}
         color={HOROCYCLE_ANCHOR_COLOR}
+        strokeWidth={strokeWidth}
+        isSelected={isSelected}
       />
     </Group>
   );

@@ -12,11 +12,12 @@ export default function Polygon({
   onDragMove,
   onDragEnd,
   isSelected,
-  color = POLYGON_COLOR
+  color,
+  strokeWidth
 }) {
   const fixedAnchor = allClicked[0].params;
   const freeAnchors = allClicked.slice(1).map(recipe => recipe.params);
-  const polygonColor = isSelected ? SELECTED_SHAPE_COLOR : color;
+  // const polygonColor = isSelected ? SELECTED_SHAPE_COLOR : color;
   const sides = getPolygonParams([fixedAnchor, ...freeAnchors], getMathCoordinates, getCanvasCoordinates);
 
   function handleFixedAnchorDragMove(event) {
@@ -51,9 +52,9 @@ export default function Polygon({
 
   function handleFreeAnchorDragMove(event) {
     const konvaFreeAnchor = event.target;
-    console.log(konvaFreeAnchor);
+    // console.log(konvaFreeAnchor);
     const anchorIdx = konvaFreeAnchor.name();
-    console.log(anchorIdx);
+    // console.log(anchorIdx);
 
     const draggedAnchorRecipes = freeAnchors.map((_, idx) => {
       if (idx.toString() !== anchorIdx) {
@@ -83,7 +84,9 @@ export default function Polygon({
               y={VERTICAL_AXIS_HEIGHT}
               innerRadius={side.radius}
               outerRadius={side.radius}
-              stroke={polygonColor}
+              stroke={color}
+              strokeWidth={strokeWidth}
+              listening={false}
               angle={360 - side.arcAngle}
               rotation={-side.rotationAngle}
               clockwise
@@ -91,7 +94,9 @@ export default function Polygon({
             <Line
               key={idx}
               points={[side.anchor1.canvasX, side.anchor1.canvasY, side.anchor2.canvasX, side.anchor2.canvasY]}
-              stroke={polygonColor}
+              stroke={color}
+              strokeWidth={strokeWidth}
+              listening={false}
             />
         ))
       }
@@ -103,6 +108,8 @@ export default function Polygon({
         onDragEnd={onDragEnd}
         onDragMove={handleFixedAnchorDragMove}
         color={FIXED_ANCHOR_COLOR}
+        strokeWidth={strokeWidth}
+        isSelected={isSelected}
       />
       {
         freeAnchors.map((anchor, idx) => (
@@ -116,6 +123,8 @@ export default function Polygon({
             onDragEnd={onDragEnd}
             onDragMove={handleFreeAnchorDragMove}
             color={FREE_ANCHOR_COLOR}
+            strokeWidth={strokeWidth}
+            isSelected={isSelected}
           />
         ))
       }

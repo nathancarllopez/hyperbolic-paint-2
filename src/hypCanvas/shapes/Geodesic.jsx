@@ -13,11 +13,12 @@ export default function Geodesic({
   onDragMove,
   onDragEnd,
   isSelected,
-  color = GEODESIC_COLOR
+  color,
+  strokeWidth
 }) {
   const fixedAnchor = clicked1.params;
   const freeAnchor = clicked2.params;
-  const geodesicColor = isSelected ? SELECTED_SHAPE_COLOR : color;
+  // const geodesicColor = isSelected ? SELECTED_SHAPE_COLOR : color;
   const { isACircle, center, radius } = getGeodesicParams(fixedAnchor, freeAnchor, getMathCoordinates, getCanvasCoordinates);
 
   function handleFixedAnchorDragMove(event) {
@@ -74,12 +75,16 @@ export default function Geodesic({
             angle={180}
             innerRadius={radius}
             outerRadius={radius}
-            stroke={geodesicColor}
+            stroke={color}
+            strokeWidth={strokeWidth}
+            listening={false}
             clockwise
           /> :
           <Line
             points={[fixedAnchor.canvasX, VERTICAL_AXIS_HEIGHT, fixedAnchor.canvasX, 0]}
-            stroke={geodesicColor}
+            stroke={color}
+            strokeWidth={strokeWidth}
+            listening={false}
           />
       }
       <Point
@@ -90,6 +95,8 @@ export default function Geodesic({
         onDragEnd={onDragEnd}
         onDragMove={handleFixedAnchorDragMove}
         color={FIXED_ANCHOR_COLOR}
+        strokeWidth={strokeWidth}
+        isSelected={isSelected}
       />
       <Point
         clickedX={freeAnchor.canvasX}
@@ -99,6 +106,8 @@ export default function Geodesic({
         onDragEnd={onDragEnd}
         onDragMove={handleFreeAnchorDragMove}
         color={FREE_ANCHOR_COLOR}
+        strokeWidth={strokeWidth}
+        isSelected={isSelected}
       />
     </Group>
   );

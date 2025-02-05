@@ -13,11 +13,12 @@ export default function Segment({
   onDragMove,
   onDragEnd,
   isSelected,
-  color = SEGMENT_COLOR
+  color,
+  strokeWidth
 }) {
   const fixedAnchor = clicked1.params;
   const freeAnchor = clicked2.params;
-  const segmentColor = isSelected ? SELECTED_SHAPE_COLOR : color;
+  // const segmentColor = isSelected ? SELECTED_SHAPE_COLOR : color;
   const { isACircle, center, radius, rotationAngle, arcAngle } = getSegmentParams(fixedAnchor, freeAnchor, getMathCoordinates, getCanvasCoordinates);
 
   function handleFixedAnchorDragMove(event) {
@@ -73,14 +74,18 @@ export default function Segment({
             y={VERTICAL_AXIS_HEIGHT}
             innerRadius={radius}
             outerRadius={radius}
-            stroke={segmentColor}
+            stroke={color}
+            strokeWidth={strokeWidth}
+            listening={false}
             angle={360 - arcAngle}
             rotation={-rotationAngle}
             clockwise
           /> :
           <Line
             points={[fixedAnchor.canvasX, fixedAnchor.canvasY, freeAnchor.canvasX, freeAnchor.canvasY]}
-            stroke={segmentColor}
+            stroke={color}
+            strokeWidth={strokeWidth}
+            listening={false}
           />
       }
       <Point
@@ -91,6 +96,8 @@ export default function Segment({
         onDragEnd={onDragEnd}
         onDragMove={handleFixedAnchorDragMove}
         color={FIXED_ANCHOR_COLOR}
+        strokeWidth={strokeWidth}
+        isSelected={isSelected}
       />
       <Point 
         clickedX={freeAnchor.canvasX}
@@ -100,6 +107,8 @@ export default function Segment({
         onDragEnd={onDragEnd}
         onDragMove={handleFreeAnchorDragMove}
         color={FREE_ANCHOR_COLOR}
+        strokeWidth={strokeWidth}
+        isSelected={isSelected}
       />
     </Group>
   );

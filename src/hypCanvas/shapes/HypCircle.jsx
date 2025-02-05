@@ -13,11 +13,12 @@ export default function HypCircle({
   onDragMove,
   onDragEnd,
   isSelected,
-  color = CIRCLE_COLOR
+  color,
+  strokeWidth
 }) {
   const center = clicked1.params;
   const anchor = clicked2.params;
-  const circleColor = isSelected ? SELECTED_SHAPE_COLOR : color;
+  // const circleColor = isSelected ? SELECTED_SHAPE_COLOR : color;
   const { eucCenter, radius } = getHypCircleParams(center, anchor, getCanvasCoordinates);
 
   function handleCenterDragMove(event) {
@@ -70,7 +71,9 @@ export default function HypCircle({
         x={eucCenter.canvasX}
         y={eucCenter.canvasY}
         radius={radius}
-        stroke={circleColor}
+        stroke={color}
+        strokeWidth={strokeWidth}
+        listening={false}
       />
       <Point
         clickedX={center.canvasX}
@@ -80,6 +83,8 @@ export default function HypCircle({
         onDragEnd={onDragEnd}
         onDragMove={handleCenterDragMove}
         color={CIRCLE_CENTER_COLOR}
+        strokeWidth={strokeWidth}
+        isSelected={isSelected}
       />
       <Point
         clickedX={anchor.canvasX}
@@ -89,6 +94,8 @@ export default function HypCircle({
         onDragEnd={onDragEnd}
         onDragMove={handleAnchorDragMove}
         color={CIRCLE_ANCHOR_COLOR}
+        strokeWidth={strokeWidth}
+        isSelected={isSelected}
       />
     </Group>
   );
