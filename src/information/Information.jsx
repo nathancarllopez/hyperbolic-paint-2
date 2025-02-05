@@ -1,4 +1,4 @@
-import CollapsibleCard from "./CollapsibleCard";
+import CollapsibleCard from "../util/CollapsibleCard";
 import Link from "./Link";
 import negCurvSurface from "../assets/neg-curve-surface.gif";
 
@@ -6,17 +6,42 @@ import Card from "react-bootstrap/Card"
 import Container from "react-bootstrap/Container"
 import Figure from "react-bootstrap/Figure"
 import Stack from "react-bootstrap/Stack"
+import { useState } from "react";
+import SuggestionModal from "../suggestions/SuggestionModal";
 
 export default function Information() {
+  const [openCard, setOpenCard] = useState("Welcome to Hyperbolic Paint")
+
+  function toggleIsOpen(title) {
+    setOpenCard(() => {
+      if (openCard === title) return null;
+      return title;
+    })
+  }
+
   return (
     <Stack gap={3}>
-      <CollapsibleCard title={"Welcome to Hyperbolic Paint"} startsOpen={true}>
+      <CollapsibleCard
+        title={"Welcome to Hyperbolic Paint"}
+        isOpen={openCard === "Welcome to Hyperbolic Paint"}
+        toggleIsOpen={toggleIsOpen}
+      >
         <Card.Text>
-          Explore <Link hrefCode={'hypGeo'}>hyperbolic geometry</Link> in the <Link hrefCode='halfPlane'>Poincaré half-plane model!</Link> If you like learning by doing, start drawing by opening the toolbar with the button at the top right of your screen. If you want more detailed instructions, check out the "Instructions" section below. Or, if you want to learn more about the underlying mathematics, read the "Learn" section.
+          Explore <Link hrefCode={'hypGeo'}>hyperbolic geometry</Link> by drawing in the <Link hrefCode='halfPlane'>Poincaré half-plane model!</Link> If you like to learn by doing, open the toolbar with the button at the top right of your screen. If you want more detailed instructions, check out the "Instructions" section below. Or, if you want to learn more about the underlying mathematics, read the "Learn" section.
         </Card.Text>
+
+        <Card.Text>
+          I would love to hear your feedback! If you check out the <Link hrefCode={'github'}>README on GitHub</Link> you'll find a list of planned improvements. If you have a new suggestion, click below.
+        </Card.Text>
+
+        <SuggestionModal/>
       </CollapsibleCard>
 
-      <CollapsibleCard title={"Instructions"}>
+      <CollapsibleCard
+        title={"Instructions"}
+        isOpen={openCard === "Instructions"}
+        toggleIsOpen={toggleIsOpen}
+      >
         <Card.Text>
           In general, all shapes are draggable, and changes made to shapes can be removed/recovered using the undo/redo buttons, respectively. Shapes can also be selected and deleted using the delete button. These buttons themselves can also be moved on the screen if you'd like to reposition out of the way while drawing. Moreover, the canvas itself can be dragged horizontally by clicking anywhere that a shape isn't already drawn.
         </Card.Text>
@@ -46,7 +71,11 @@ export default function Information() {
         </Card.Text>
       </CollapsibleCard>
 
-      <CollapsibleCard title={"Learn"}>
+      <CollapsibleCard
+        title={"Learn"}
+        isOpen={openCard === "Learn"}
+        toggleIsOpen={toggleIsOpen}
+      >
       <Card.Text>
           Like standard geometry (so-called <Link hrefCode='eucGeo'>"Euclidean geometry"</Link>), the objects of study in hyperbolic geometry are shapes like points, lines, and polygons. The fundamental difference is that Euclidean geometry is done on a flat plane, while hyperbolic geometry studies shapes on a <Link hrefCode='negCurv'>negatively curved surface.</Link> As can be seen in the figure below, the shortest path between any two points is no longer a straight line!
         </Card.Text>
@@ -64,14 +93,6 @@ export default function Information() {
           Hyperbolic geometry is incredibly rich, both mathematically and <Link hrefCode="escher">aesthetically.</Link> 
         </Card.Text>
       </CollapsibleCard>
-
-      <CollapsibleCard title={"Contact and Source"}>
-        <Card.Text>
-          I am always interested in suggestions for improvement and new features! You can see a list of planned features in the README of the <Link hrefCode={'github'}>github repository,</Link> but if you don't see your idea please let me know! You can email me at nathancarllopez@gmail.com.
-        </Card.Text>
-      </CollapsibleCard>
-
-      
     </Stack>
   );
 }
