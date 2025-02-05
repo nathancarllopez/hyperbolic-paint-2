@@ -8,3 +8,7 @@
 #collapseToggle:hover {
   opacity: 0.75;
 }
+
+#randomItem {
+  fill: none;
+}
