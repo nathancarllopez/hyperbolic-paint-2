@@ -24,8 +24,8 @@ export default function SuggestionModal() {
     const valid = validateFormData();
     if (valid) {
       try {
-        // const response = await postToMongoDB(formData);
-        const response = { ok: false };
+        const response = await postToMongoDB(formData);
+        // const response = { ok: false };
         if (response.ok) {
           setModalBody('confirm');
         } else {
