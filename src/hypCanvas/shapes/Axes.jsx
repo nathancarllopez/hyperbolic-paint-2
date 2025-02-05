@@ -3,10 +3,9 @@ import { AXES_COLOR, AXES_LABEL_FONT_SIZE, AXES_STROKE_WIDTH, AXIS_TICK_LENGTH, 
 import { Fragment } from "react";
 
 export default function Axes({
-  // originCoords,
   originX,
   getMathCoordinates,
-  toolbarState,
+  settings,
   zoomScale
 }) {
   const vertTicks = [];
@@ -42,7 +41,7 @@ export default function Axes({
         strokeWidth={AXES_STROKE_WIDTH}
       />
       {
-        toolbarState.showAxisTicks && posHorzTicks.map(({ position, label }, idx) => (
+        settings.showAxisTicks && posHorzTicks.map(({ position, label }, idx) => (
           <Fragment key={idx}>
             <Line
               points={[position, VERTICAL_AXIS_HEIGHT - AXIS_TICK_LENGTH, position, VERTICAL_AXIS_HEIGHT + AXIS_TICK_LENGTH]}
@@ -60,7 +59,7 @@ export default function Axes({
         ))
       }
       {
-        toolbarState.showAxisTicks && negHorzTicks.map(({ position, label }, idx) => (
+        settings.showAxisTicks && negHorzTicks.map(({ position, label }, idx) => (
           <Fragment key={idx}>
             <Line
               points={[position, VERTICAL_AXIS_HEIGHT - AXIS_TICK_LENGTH, position, VERTICAL_AXIS_HEIGHT + AXIS_TICK_LENGTH]}
@@ -85,7 +84,7 @@ export default function Axes({
         strokeWidth={AXES_STROKE_WIDTH}
       />
       {
-        toolbarState.showAxisTicks && vertTicks.map(({ position, label }, idx) => (
+        settings.showAxisTicks && vertTicks.map(({ position, label }, idx) => (
           <Fragment key={idx}>
             <Line
               points={[originX - AXIS_TICK_LENGTH, position, originX + AXIS_TICK_LENGTH, position]}
