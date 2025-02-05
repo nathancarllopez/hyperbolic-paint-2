@@ -1,4 +1,5 @@
-import { ButtonGroup, Dropdown } from "react-bootstrap";
+import ButtonGroup from "react-bootstrap/ButtonGroup";
+import Dropdown from "react-bootstrap/Dropdown";
 
 export default function GenericDropdown({
   title,
