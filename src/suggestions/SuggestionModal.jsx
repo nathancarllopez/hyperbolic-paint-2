@@ -1,13 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
-import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
 import { ERROR_MESSAGE_DURATION } from "../util/constants";
 import initializeFormObject from "./initializeFormObject";
 import postToMongoDB from "./postToMongoDB";
 import SuggestionForm from "./SuggestionForm";
-import { Fade } from "react-bootstrap";
+import Fade from "react-bootstrap/Fade";
 import SuggestionConfirm from "./SuggestionConfirm";
 import SuggestionError from "./SuggestionError";
 
