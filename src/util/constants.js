@@ -29,6 +29,8 @@ export const INITIAL_SETTINGS = {
   showMouseCoords: true,
   showAxisTicks: true,
   showToolbarInstructions: true,
+  pointRadius: 5,
+  // pointHitRadius: 5,
 }
 export const ANIMATION_TOOLNAMES = ['rotation', 'translation'];
 export const DRAWING_TOOLNAMES = ['point', 'horocycle', 'geodesic', 'circle', 'segment', 'polygon'];
