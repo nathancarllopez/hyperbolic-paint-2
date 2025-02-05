@@ -11,7 +11,6 @@ export default function Toolbar({
   setActiveToasts,
   drawingColor, setDrawingColor,
   drawingWidth, setDrawingWidth,
-  // styleDropdownOpen, setStyleDropdownOpen
   openDropdown, setOpenDropdown
 }) {
   const [isVertical, setIsVertical] = useState(screen.orientation.type.includes('portrait'));
