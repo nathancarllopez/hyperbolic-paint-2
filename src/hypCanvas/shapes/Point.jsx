@@ -10,6 +10,8 @@ export default function Point({
   getMathCoordinates,
   color,
   strokeWidth,
+  radius,
+  // hitRadius,
   isDraggable = true,
   onDragStart = () => {},
   onDragMove = () => {},
@@ -17,6 +19,7 @@ export default function Point({
   isSelected = false,
 }) {
   // console.log(clickedX, clickedY)
+  // console.log('id:', id);
   const [isFocused, setIsFocused] = useState(false);
 
   function handleDragMove(event) {
@@ -38,13 +41,40 @@ export default function Point({
     onDragMove(event, newParams, recipeId);
   }
 
+  const PointComponent = (pointId, pointName) => {
+    // console.log('id:', pointId);
+    // console.log('name:', pointName);
+    
+    return (
+      <Circle
+        id={pointId}
+        name={pointName}
+        x={clickedX}
+        y={clickedY}
+        radius={radius + strokeWidth}
+        // hitStrokeWidth={hitRadius}
+    
+        stroke={color}
+        fill={color}
+    
+        onMouseEnter={() => setIsFocused(true)}
+        onMouseLeave={() => setIsFocused(false)}
+        
+        draggable={isDraggable}
+        onDragStart={onDragStart}
+        onDragMove={handleDragMove}
+        onDragEnd={onDragEnd}
+      />
+    );
+  }
+
   return (
     <>
       <Rect
-        x={clickedX - 1.5 * (POINT_RADIUS + strokeWidth)}
-        y={clickedY - 1.5 * (POINT_RADIUS + strokeWidth)}
-        width={3 * (POINT_RADIUS + strokeWidth)}
-        height={3 * (POINT_RADIUS + strokeWidth)}
+        x={clickedX - (radius + strokeWidth) - 2}
+        y={clickedY - (radius + strokeWidth) - 2}
+        width={2 * (radius + strokeWidth + 2)}
+        height={2 * (radius + strokeWidth + 2)}
         stroke={SELECT_BOX_COLOR}
         listening={false}
         strokeWidth={isFocused || isSelected ? 1 : 0}
@@ -53,42 +83,9 @@ export default function Point({
       {
         id !== "" ? 
           <Group id={id}>
-            <Circle
-              name={name}
-              x={clickedX}
-              y={clickedY}
-              radius={POINT_RADIUS + strokeWidth}
-          
-              stroke={color}
-              fill={color}
-          
-              onMouseEnter={() => setIsFocused(true)}
-              onMouseLeave={() => setIsFocused(false)}
-              
-              draggable={isDraggable}
-              onDragStart={onDragStart}
-              onDragMove={handleDragMove}
-              onDragEnd={onDragEnd}
-            />
+            { PointComponent(undefined, name) }
           </Group> :
-          <Circle
-            id={id}
-            name={name}
-            x={clickedX}
-            y={clickedY}
-            radius={POINT_RADIUS + strokeWidth}
-        
-            stroke={color}
-            fill={color}
-        
-            onMouseEnter={() => setIsFocused(true)}
-            onMouseLeave={() => setIsFocused(false)}
-            
-            draggable={isDraggable}
-            onDragStart={onDragStart}
-            onDragMove={handleDragMove}
-            onDragEnd={onDragEnd}
-        />
+          PointComponent(id, name)
       }
     </>
   );
