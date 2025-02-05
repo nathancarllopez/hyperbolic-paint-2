@@ -1,4 +1,4 @@
-import { Card, Form, FormCheck, Stack } from "react-bootstrap";
+import { Card, Col, Form, FormCheck, Row, Stack } from "react-bootstrap";
 import FormCheckInput from "react-bootstrap/esm/FormCheckInput";
 import FormCheckLabel from "react-bootstrap/esm/FormCheckLabel";
 
@@ -12,8 +12,23 @@ export default function Settings({
     { name: 'showToolbarInstructions', label: "Show Toolbar Instructions" }
   ];
 
+  const numInputInfo = [
+    { name: 'pointRadius', label: "Point Radius" },
+    // { name: 'pointHitRadius', label: "Point Hit Radius" }
+  ];
+
   function handleSwitchChange(switchName) {
     setSettings(prev => ({ ...prev, [switchName]: !prev[switchName] }));
+  }
+
+  function handleNumChange(event, numInputName) {
+    setSettings(prev => {
+      const newNum = parseInt(event.target.value);
+      if (isNaN(newNum)) {
+        return prev;
+      }
+      return { ...prev, [numInputName]: newNum };
+    });
   }
   
   return (
@@ -34,6 +49,33 @@ export default function Settings({
                     onChange={() => handleSwitchChange(name)}
                   />
                 </FormCheck>
+              ))
+            }
+          </Form>
+        </Card.Body>
+      </Card>
+
+      <Card>
+        <Card.Body>
+          <Form>
+            {
+              numInputInfo.map(({ name, label }) => (
+                <Form.Group
+                  key={name}
+                  controlId={name}
+                  as={Row}
+                >
+                  <Form.Label column>{ label }</Form.Label>
+                  <Col>
+                    <Form.Control
+                      type="number"
+                      onChange={event => handleNumChange(event, name)}
+                      value={settings[name]}
+                      min={1}
+                      max={100}
+                    />
+                  </Col>
+                </Form.Group>
               ))
             }
           </Form>
