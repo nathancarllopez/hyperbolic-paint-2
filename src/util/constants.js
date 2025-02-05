@@ -22,24 +22,37 @@ export const POLYGON_COLOR = "white";
 export const SEGMENT_COLOR = "white";
 export const HOLD_DURATION_THRESHOLD = 500;
 export const CENTER_ROTATION_COLOR = "orange";
+export const AXIS_TRANSLATION_COLOR = "orange";
 export const DASH_LENGTH = 10;
-export const DASH_SEPARATION = 5;
-export const INITIAL_TOOLBARSTATE = {
-  // clickTool: 'horocycle',
-  clickTool: 'point',
-  // clickTool: 'geodesic',
-  // clickTool: 'circle',
-  // clickTool: 'segment',
-  // clickTool: 'polygon',
-  // clickTool: 'rotation',
+export const DASH_SEPARATION = 20;
+// export const INITIAL_TOOLBARSTATE = {
+//   // clickTool: 'horocycle',
+//   // clickTool: 'point',
+//   // clickTool: 'geodesic',
+//   // clickTool: 'circle',
+//   clickTool: 'segment',
+//   // clickTool: 'polygon',
+//   // clickTool: 'rotation',
+//   // clickTool: 'translation',
+//   showMouseCoords: true,
+//   showControlPanel: true,
+//   showAxisTicks: true,
+//   fullButtonLabels: false,
+// };
+export const INITIAL_SETTINGS = {
   showMouseCoords: true,
-  showHistoryControls: true,
-  showAxisTicks: true
-};
-export const ANIMATION_TOOLNAMES = ['rotation'];
+  showAxisTicks: true,
+  showToolbarInstructions: true,
+}
+export const ANIMATION_TOOLNAMES = ['rotation', 'translation'];
+export const DRAWING_TOOLNAMES = ['point', 'horocycle', 'geodesic', 'circle', 'segment', 'polygon'];
 export const AXIS_TICK_LENGTH = 4;
 export const AXIS_TICK_SEPARATION = 50;
 export const AXES_COLOR = "gray";
 export const AXES_LABEL_FONT_SIZE = 12;
 export const INITIAL_ORIGIN_X = (window.innerWidth / 2) * 1;
 export const AXES_STROKE_WIDTH = 2;
+export const ERROR_MESSAGE_DURATION = 3 * 1000;
+export const ANIM_SPEED_DAMPENER = 0.1;
+export const TOAST_DELAY = 5000;
+export const SELECT_BOX_COLOR = "white";

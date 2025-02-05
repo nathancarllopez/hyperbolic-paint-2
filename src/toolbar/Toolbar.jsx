@@ -1,126 +1,109 @@
-import Card from "react-bootstrap/Card";
-import Col from "react-bootstrap/Col"
-import Container from "react-bootstrap/Container";
-import FormCheck from 'react-bootstrap/FormCheck';
-import FormCheckInput from 'react-bootstrap/FormCheckInput';
-import FormCheckLabel from 'react-bootstrap/FormCheckLabel';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Row from "react-bootstrap/Row";
-import Stack from "react-bootstrap/Stack";
-import ToggleButton from "react-bootstrap/ToggleButton";
-import Tooltip from 'react-bootstrap/Tooltip';
+import ButtonGroup from "react-bootstrap/ButtonGroup";
+import HistoryControlButtons from "./HistoryControlButtons";
+import FloatingDraggableCard from "../util/FloatingDraggableCard";
+import StylesDropdown from "./StylesDropdown";
+import GenericDropdown from "./GenericDropdown";
+import { useEffect, useState } from "react";
 
 export default function Toolbar({
-  toolbarState,
-  onClick
+  clickTool, setClickTool,
+  history, setHistory,
+  setActiveToasts,
+  drawingColor, setDrawingColor,
+  drawingWidth, setDrawingWidth,
+  // styleDropdownOpen, setStyleDropdownOpen
+  openDropdown, setOpenDropdown
 }) {
-  const drawingButtons = [
-    { name: 'point', tooltip: "Point", label: 'Pt'},
-    { name: 'geodesic', tooltip: "Line", label: 'L' },
-    { name: 'circle', tooltip: "Circle", label: 'C' },
-    { name: 'horocycle', tooltip: "Horocycle", label: 'H' },
-    { name: 'segment', tooltip: "Line Segment", label: 'S' },
-    { name: 'polygon', tooltip: "Polygon", label: 'Pg'},
+  const [isVertical, setIsVertical] = useState(screen.orientation.type.includes('portrait'));
+  // const [dropDirection, setDropDirection] = useState();
+
+  // useEffect(() => {
+  //   const handleOrientationChange = (event) => {
+  //     // console.log('toolbar');
+  //     setIsVertical(event.target.type.includes('portrait'))
+  //   }
+
+  //   screen.orientation.addEventListener('change', handleOrientationChange);
+
+  //   return () => {
+  //     screen.orientation.removeEventListener('change', handleOrientationChange);
+  //   }
+  // }, []);
+
+  function handleDragStop(_, data) {
+    setIsVertical(prev => {
+      const toolbarContainer = data.node;
+      const { left, right, top, bottom } = toolbarContainer.getBoundingClientRect();
+
+      if (prev) {
+        if (top < 0 || bottom > window.innerHeight) {
+          return !prev;
+        }
+        return prev;
+      }
+
+      if (left < 0 || right > window.innerWidth) {
+        return !prev;
+      }
+      return prev;
+    });
+  }
+
+  const shapesInfo = [
+    { name: 'point', label: "Point" },
+    { name: 'geodesic', label: "Line" },
+    { name: 'segment', label: "Line Segment" },
+    { name: 'polygon', label: "Polygon" },
+    { name: 'circle', label: "Circle" },
+    { name: 'horocycle', label: "Horocycle" },
   ];
 
-  // const animationButtons = [
-  //   { name: 'rotation', label: 'R' }
-  // ];
-
-  const settings = [
-    { name: 'showMouseCoords', label: 'Show Mouse Coordinates' },
-    { name: 'showHistoryControls', label: 'Show History Controls' },
-    { name: 'showAxisTicks', label: 'Show Axis Ticks' }
+  const animationsInfo = [
+    { name: 'rotation', label: "Rotation" },
+    { name: 'translation', label: "Translation" }
   ];
 
   return (
-    <Stack gap={3}>
+    <FloatingDraggableCard 
+      handleDragStop={handleDragStop}
+      placement={{ top: 0 }}
+      centered={true}
+    >
+      <ButtonGroup vertical={isVertical}>
+        <GenericDropdown
+          title={"Shapes"}
+          itemInfo={shapesInfo}
+          clickTool={clickTool}
+          setClickTool={setClickTool}
+          setActiveToasts={setActiveToasts}
+          openDropdown={openDropdown}
+          setOpenDropdown={setOpenDropdown}
+        />
 
-      {/* Drawing buttons */}
-      <Card>
-        <Card.Body>
-          <Card.Title>Shapes</Card.Title>
-          <Container bsPrefix="text-center">
-            <Row bsPrefix="row gy-3">
-              {
-                drawingButtons.map(({ name, tooltip, label }) => (
-                  <Col key={name} bsPrefix="col-4">
-                    <OverlayTrigger
-                      overlay={
-                        <Tooltip id={`${name}-tooltip`}>
-                          { tooltip }
-                        </Tooltip>
-                      }
-                    >
-                      <ToggleButton
-                        id={name}
-                        value={name}
-                        type="radio"
-                        name="clickTool"
-                        onChange={() => onClick('clickTool', name)}
-                        className="w-50"
-                      >
-                        { label }
-                      </ToggleButton>
-                    </OverlayTrigger>
-                  </Col>
-                ))
-              }
-            </Row>
-          </Container>
-        </Card.Body>
-      </Card>
+        <GenericDropdown
+          title={"Animations"}
+          itemInfo={animationsInfo}
+          clickTool={clickTool}
+          setClickTool={setClickTool}
+          setActiveToasts={setActiveToasts}
+          openDropdown={openDropdown}
+          setOpenDropdown={setOpenDropdown}
+        />
 
-      {/* Animation buttons */}
-      {/* <Card>
-        <Card.Body>
-          <Card.Title>Animations</Card.Title>
-          <Container>
-            <Row>
-              {
-                animationButtons.map(({ name, label }) => (
-                  <Col key={name}>
-                    <ToggleButton
-                      id={name}
-                      value={name}
-                      type="radio"
-                      name="clickTool"
-                      onChange={() => onClick('clickTool', name)}
-                    >
-                      { label }
-                    </ToggleButton>
-                  </Col>
-                ))
-              }
-            </Row>
-          </Container>
-        </Card.Body>
-      </Card> */}
+        <StylesDropdown
+          drawingColor={drawingColor}
+          setDrawingColor={setDrawingColor}
+          drawingWidth={drawingWidth}
+          setDrawingWidth={setDrawingWidth}
+          openDropdown={openDropdown}
+          setOpenDropdown={setOpenDropdown}
+        />
 
-      {/* Settings */}
-      <Card>
-        <Card.Body>
-          <Card.Title>Settings</Card.Title>
-          <Container>
-            {
-              settings.map(({ name, label }) => (
-                <FormCheck 
-                  key={name}
-                  type="switch"
-                  id={name}
-                >
-                  <FormCheckLabel>{ label }</FormCheckLabel>
-                  <FormCheckInput
-                    checked={toolbarState[name]}
-                    onChange={() => onClick(name, !toolbarState[name], false)}
-                  />
-                </FormCheck>
-              ))
-            }
-          </Container>
-        </Card.Body>
-      </Card>
-    </Stack>
+        <HistoryControlButtons
+          history={history}
+          setHistory={setHistory}
+        />
+      </ButtonGroup>
+    </FloatingDraggableCard>
   );
 }
-
