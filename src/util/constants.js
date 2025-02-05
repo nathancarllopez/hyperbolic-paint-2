@@ -25,20 +25,6 @@ export const CENTER_ROTATION_COLOR = "orange";
 export const AXIS_TRANSLATION_COLOR = "orange";
 export const DASH_LENGTH = 10;
 export const DASH_SEPARATION = 20;
-// export const INITIAL_TOOLBARSTATE = {
-//   // clickTool: 'horocycle',
-//   // clickTool: 'point',
-//   // clickTool: 'geodesic',
-//   // clickTool: 'circle',
-//   clickTool: 'segment',
-//   // clickTool: 'polygon',
-//   // clickTool: 'rotation',
-//   // clickTool: 'translation',
-//   showMouseCoords: true,
-//   showControlPanel: true,
-//   showAxisTicks: true,
-//   fullButtonLabels: false,
-// };
 export const INITIAL_SETTINGS = {
   showMouseCoords: true,
   showAxisTicks: true,
