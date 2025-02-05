@@ -8,6 +8,7 @@ To do for resume:
   - Make toolbar vertical if in portrait mode
   - Make toolbar dropdowns drop to the side if in portrait mode
   - Resize axes when a change occurs
+- Finish wiring up the number inputs in Settings.jsx
 
 To do short term:
 - Zooming in and out
