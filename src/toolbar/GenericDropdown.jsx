@@ -6,8 +6,11 @@ export default function GenericDropdown({
   itemInfo,
   clickTool, setClickTool,
   setActiveToasts,
-  openDropdown, setOpenDropdown
+  openDropdown, setOpenDropdown,
+  toolbarIsVertical
 }) {
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
   function handleDropdownToggle() {
     setOpenDropdown(prev => {
       if (prev === title) {
@@ -28,8 +31,11 @@ export default function GenericDropdown({
       show={openDropdown === title}
       onToggle={handleDropdownToggle}
       onTouchStart={handleDropdownToggle}
+      drop={toolbarIsVertical ? "start" : "down"}
     >
-      <Dropdown.Toggle>{ title }</Dropdown.Toggle>
+      <Dropdown.Toggle size={isTouchDevice ? "sm" : "lg"}>
+        { title }
+      </Dropdown.Toggle>
 
       <Dropdown.Menu>
         {
