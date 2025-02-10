@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { ANIM_SPEED_DAMPENER, CENTER_ROTATION_COLOR, DASH_LENGTH, DASH_SEPARATION, POINT_RADIUS, SELECTED_SHAPE_COLOR, VERTICAL_AXIS_HEIGHT } from "../../util/constants";
+import { ANIMATION_SHAPE_COLOR, DASH_LENGTH, DASH_SEPARATION } from "../../util/constants";
 import Point from "../shapes/Point";
 import { getHypCircleParams } from "../math/geometry";
 import { Circle, Group } from "react-konva";
@@ -16,7 +16,8 @@ export default function CenterOfRotation({
   isAnimating,
   isSelected,
   animationSpeed,
-  anchorRadius
+  anchorRadius,
+  originY
 }) {
   const bdryCircleRef = useRef(null);
 
@@ -44,7 +45,7 @@ export default function CenterOfRotation({
   }, [isAnimating, animationSpeed]);
 
   const center = getMathCoordinates(clickedX, clickedY);
-  const anchorY = Math.min(VERTICAL_AXIS_HEIGHT - POINT_RADIUS, center.canvasY + window.innerHeight * 0.1)
+  const anchorY = Math.min(originY - anchorRadius, center.canvasY + window.innerHeight * 0.1)
   const anchor = getMathCoordinates(center.canvasX, anchorY);
   const { eucCenter, radius } = getHypCircleParams(center, anchor, getCanvasCoordinates);
 
@@ -52,9 +53,9 @@ export default function CenterOfRotation({
     const konvaCenter = event.target;
 
     const newParams = getMathCoordinates(konvaCenter.x(), konvaCenter.y());
-    const recipeId = konvaCenter.getParent().id();
+    const drawingId = konvaCenter.getParent().id();
 
-    onDragMove(event, newParams, recipeId);
+    onDragMove(event, newParams, drawingId);
   }
 
   return (
@@ -64,7 +65,7 @@ export default function CenterOfRotation({
         x={eucCenter.canvasX}
         y={eucCenter.canvasY}
         radius={radius}
-        stroke={CENTER_ROTATION_COLOR}
+        stroke={ANIMATION_SHAPE_COLOR}
         dash={[DASH_LENGTH, DASH_SEPARATION]}
         listening={false}
       />
@@ -75,7 +76,7 @@ export default function CenterOfRotation({
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
         onDragMove={handleCenterDragMove}
-        color={CENTER_ROTATION_COLOR}
+        color={ANIMATION_SHAPE_COLOR}
         strokeWidth={1}
         isSelected={isSelected}
         radius={anchorRadius}
