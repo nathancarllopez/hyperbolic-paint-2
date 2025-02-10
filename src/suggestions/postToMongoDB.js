@@ -1,5 +1,7 @@
+import { AWSLAMBDA_FUNCTION_URL } from "./awsLambdaUrl";
+
 export default async function postToMongoDB(formData) {
-  const functionUrl = "https://ulfxaricdyc3xckztvv7nnhdhe0ahwlm.lambda-url.us-east-2.on.aws/";
+  const functionUrl = AWSLAMBDA_FUNCTION_URL
   const options = {
     method: "POST",
     body: JSON.stringify(formData),
