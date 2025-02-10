@@ -3,14 +3,17 @@ import Col from "react-bootstrap/Col";
 import Dropdown from "react-bootstrap/Dropdown";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/ButtonGroup";
+import Container from "react-bootstrap/Container";
 
 export default function StylesDropdown({
   drawingColor, setDrawingColor,
   drawingWidth, setDrawingWidth,
-  openDropdown, setOpenDropdown
+  openDropdown, setOpenDropdown,
+  toolbarIsVertical
 }) {
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
   function handleDropdownToggle() {
-    console.log('toggle')
     setOpenDropdown(prev => {
       if (prev === 'Styles') {
         return null;
@@ -23,43 +26,31 @@ export default function StylesDropdown({
     <Dropdown
       as={ButtonGroup}
       autoClose={"outside"}
-      // autoClose={false}
       show={openDropdown === 'Styles'}
       onToggle={handleDropdownToggle}
       onTouchStart={handleDropdownToggle}
-      // className="me-2"
-      // vertical
+      drop={toolbarIsVertical ? "start" : "down"}
     >
-      <Dropdown.Toggle>Styles</Dropdown.Toggle>
+      <Dropdown.Toggle size={isTouchDevice ? "sm" : "lg"}>
+        Styles
+      </Dropdown.Toggle>
 
-      <Dropdown.Menu
-        className="p-3"
-        // style={{ width: "500px" }}
-        onTouchStart={event => event.stopPropagation()}
-      >
-        <Form>
-          <Form.Group
-            as={Row}
-            controlId="drawing-color"
-            // className="align-items-center"
-          >
-            <Form.Label column>Color</Form.Label>
+      <Dropdown.Menu className="p-3" onTouchStart={event => event.stopPropagation()}>
+        <Container className="p-0" style={{ width: "200px" }}>
+          <Row bsPrefix="row mb-2 align-items-center">
+            <Col>Color</Col>
             <Col>
               <Form.Control
                 type="color"
-                defaultValue={drawingColor}
+                value={drawingColor}
                 onChange={(event) => setDrawingColor(event.target.value)}
                 className="mx-auto"
               />
             </Col>
-          </Form.Group>
+          </Row>
 
-          <Form.Group
-            as={Row}
-            controlId="drawing-stroke-width"
-            className="align-items-center"
-          >
-            <Form.Label column>Width: (px)</Form.Label>
+          <Row bsPrefix="row align-items-center">
+            <Col>Width</Col>
             <Col>
               <Form.Control
                 type="number"  
@@ -69,9 +60,8 @@ export default function StylesDropdown({
                 max={100}
               />
             </Col>
-          </Form.Group>
-
-        </Form>
+          </Row>
+        </Container>
       </Dropdown.Menu>
     </Dropdown>
   );
