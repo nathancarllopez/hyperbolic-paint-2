@@ -1,4 +1,4 @@
-import { EPSILON, VERTICAL_AXIS_HEIGHT } from "../../util/constants";
+import { EPSILON } from "../../util/constants";
 
 export function getGeodesicParams(anchor1, anchor2, getMathCoordinates, getCanvasCoordinates) {
   const xSeparation = anchor2.canvasX - anchor1.canvasX;
@@ -61,7 +61,7 @@ function computeGeodesicCenter(anchor1, anchor2, getCanvasCoordinates) {
   const midpointX = (anchor2.mathX + anchor1.mathX) / 2;
 
   if (Math.abs(deltaY) < EPSILON) {
-    const centerCoords = getCanvasCoordinates(midpointX, 0);
+    const centerCoords = getCanvasCoordinates(midpointX);
     return centerCoords.canvasX;
   }
 
@@ -72,17 +72,17 @@ function computeGeodesicCenter(anchor1, anchor2, getCanvasCoordinates) {
   const yIntercept = midpointY - perpSlope * midpointX;
   const centerMathX = -yIntercept / perpSlope;
 
-  const centerCoords = getCanvasCoordinates(centerMathX, 0);
+  const centerCoords = getCanvasCoordinates(centerMathX);
   return centerCoords.canvasX;
 }
 
 function computeGeodesicRadius(anchor, center, getMathCoordinates) {
-  const { mathX } = getMathCoordinates(center, VERTICAL_AXIS_HEIGHT);
+  const { mathX } = getMathCoordinates(center);
   return Math.sqrt((anchor.mathX - mathX) ** 2 + (anchor.mathY) ** 2);
 }
 
 function computeAnchorAngle(anchor, center, getMathCoordinates) {
-  const { mathX, mathY } = getMathCoordinates(center, VERTICAL_AXIS_HEIGHT);
+  const { mathX, mathY } = getMathCoordinates(center);
   const angle = Math.atan2(anchor.mathY - mathY, anchor.mathX - mathX);
   return (angle * 180) / Math.PI;
 }
