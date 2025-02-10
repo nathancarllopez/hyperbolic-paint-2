@@ -1,12 +1,12 @@
 import { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
+import Fade from "react-bootstrap/Fade";
 import Modal from "react-bootstrap/Modal";
 import { ERROR_MESSAGE_DURATION } from "../util/constants";
 import initializeFormObject from "./initializeFormObject";
 import postToMongoDB from "./postToMongoDB";
 import SuggestionForm from "./SuggestionForm";
-import Fade from "react-bootstrap/Fade";
 import SuggestionConfirm from "./SuggestionConfirm";
 import SuggestionError from "./SuggestionError";
 
@@ -23,8 +23,11 @@ export default function SuggestionModal() {
     const valid = validateFormData();
     if (valid) {
       try {
-        const response = await postToMongoDB(formData);
-        // const response = { ok: false };
+        // const response = await postToMongoDB(formData);
+        const response = await new Promise((resolve, reject) => {
+          setTimeout(() => resolve({ ok: true }), 2000);
+        }); // For testing
+        
         if (response.ok) {
           setModalBody('confirm');
         } else {
@@ -42,15 +45,6 @@ export default function SuggestionModal() {
 
   function validateFormData() {
     const badInputs = [];
-
-    const email = formData.email;
-    if (email) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      const validEmail = emailRegex.test(email);
-      if (!validEmail) {
-        badInputs.push(['email', true]);
-      }
-    }
 
     const type = formData.type;
     const otherType = formData.otherType;
@@ -81,8 +75,7 @@ export default function SuggestionModal() {
     return true;
   }
 
-  function handleCloseModal() {
-    setShowModal(false);
+  function handleResetForm() {
     setFormData(() => initializeFormObject(""));
     setModalBody('form');
   }
@@ -93,7 +86,11 @@ export default function SuggestionModal() {
         Submit Suggestion
       </Button>
 
-      <Modal show={showModal} onHide={handleCloseModal}>
+      <Modal
+        show={showModal}
+        onEnter={handleResetForm}
+        onHide={() => setShowModal(false)}
+      >
         <Modal.Header closeButton>
           <Modal.Title>Thanks for the feedback!</Modal.Title>
         </Modal.Header>
@@ -135,7 +132,7 @@ export default function SuggestionModal() {
         <Modal.Footer>
           <Button 
             variant="secondary" 
-            onClick={handleCloseModal}
+            onClick={() => setShowModal(false)}
             disabled={isSubmitting}
           >
             Close
