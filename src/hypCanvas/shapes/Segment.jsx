@@ -1,5 +1,5 @@
 import { Arc, Group, Line } from "react-konva";
-import { SEGMENT_COLOR, VERTICAL_AXIS_HEIGHT, FREE_ANCHOR_COLOR, FIXED_ANCHOR_COLOR, POINT_RADIUS, SELECTED_SHAPE_COLOR } from "../../util/constants";
+import { FREE_ANCHOR_COLOR, FIXED_ANCHOR_COLOR } from "../../util/constants";
 import Point from "./Point";
 import { getSegmentParams } from "../math/geometry";
 
@@ -15,11 +15,11 @@ export default function Segment({
   isSelected,
   color,
   strokeWidth,
-  anchorRadius
+  anchorRadius,
+  originY
 }) {
   const fixedAnchor = clicked1.params;
   const freeAnchor = clicked2.params;
-  // const segmentColor = isSelected ? SELECTED_SHAPE_COLOR : color;
   const { isACircle, center, radius, rotationAngle, arcAngle } = getSegmentParams(fixedAnchor, freeAnchor, getMathCoordinates, getCanvasCoordinates);
 
   function handleFixedAnchorDragMove(event) {
@@ -31,7 +31,7 @@ export default function Segment({
       y: freeAnchor.canvasY - fixedAnchor.canvasY
     };
     const freeAnchorY = fixedAnchorCoords.canvasY + dispVector.y;
-    const awayFromBoundary = freeAnchorY < VERTICAL_AXIS_HEIGHT - POINT_RADIUS;
+    const awayFromBoundary = freeAnchorY < originY - anchorRadius;
     const freeAnchorCoords = awayFromBoundary ?
       getMathCoordinates(fixedAnchorCoords.canvasX + dispVector.x, fixedAnchorCoords.canvasY + dispVector.y) :
       { ...clicked2.params };
@@ -46,9 +46,9 @@ export default function Segment({
         params: freeAnchorCoords
       }
     };
-    const recipeId = konvaFixedAnchor.getParent().id();
+    const drawingId = konvaFixedAnchor.getParent().id();
 
-    onDragMove(event, newParams, recipeId);
+    onDragMove(event, newParams, drawingId);
   }
 
   function handleFreeAnchorDragMove(event) {
@@ -61,9 +61,9 @@ export default function Segment({
         params: getMathCoordinates(konvaFreeAnchor.x(), konvaFreeAnchor.y())
       }
     };
-    const recipeId = konvaFreeAnchor.getParent().id();
+    const drawingId = konvaFreeAnchor.getParent().id();
 
-    onDragMove(event, newParams, recipeId);
+    onDragMove(event, newParams, drawingId);
   }
 
   return (
@@ -72,7 +72,7 @@ export default function Segment({
         isACircle ?
           <Arc
             x={center}
-            y={VERTICAL_AXIS_HEIGHT}
+            y={originY}
             innerRadius={radius}
             outerRadius={radius}
             stroke={color}
@@ -100,6 +100,7 @@ export default function Segment({
         strokeWidth={strokeWidth}
         isSelected={isSelected}
         radius={anchorRadius}
+        originY={originY}
       />
       <Point 
         clickedX={freeAnchor.canvasX}
@@ -112,6 +113,7 @@ export default function Segment({
         strokeWidth={strokeWidth}
         isSelected={isSelected}
         radius={anchorRadius}
+        originY={originY}
       />
     </Group>
   );

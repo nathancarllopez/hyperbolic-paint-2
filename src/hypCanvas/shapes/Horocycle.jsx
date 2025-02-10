@@ -1,5 +1,5 @@
 import { Circle, Group } from "react-konva";
-import { HOROCYCLE_ANCHOR_COLOR, HOROCYCLE_CENTER_COLOR, HOROCYCLE_COLOR, SELECTED_SHAPE_COLOR } from "../../util/constants";
+import { FREE_ANCHOR_COLOR, FIXED_ANCHOR_COLOR } from "../../util/constants";
 import Point from "./Point";
 
 export default function Horocycle({
@@ -14,20 +14,20 @@ export default function Horocycle({
   isSelected,
   color,
   strokeWidth,
-  anchorRadius
+  anchorRadius,
+  originY
 }) {
   const center = getMathCoordinates(clickedX, clickedY);
   const anchor = getCanvasCoordinates(center.mathX, 2 * center.mathY);
   const radius = center.mathY;
-  // const horocycleColor = isSelected ? SELECTED_SHAPE_COLOR : color;
 
   function handleCenterDragMove(event) {
     const konvaCenter = event.target;
 
     const newParams = getMathCoordinates(konvaCenter.x(), konvaCenter.y());
-    const recipeId = konvaCenter.getParent().id();
+    const drawingId = konvaCenter.getParent().id();
     
-    onDragMove(event, newParams, recipeId);
+    onDragMove(event, newParams, drawingId);
   }
 
   function handleAnchorDragMove(event) {
@@ -38,9 +38,9 @@ export default function Horocycle({
 
     const anchorCoords = getMathCoordinates(konvaAnchor.x(), konvaAnchor.y());
     const newParams = getCanvasCoordinates(anchorCoords.mathX, Math.floor(anchorCoords.mathY / 2));
-    const recipeId = konvaAnchor.getParent().id();
+    const drawingId = konvaAnchor.getParent().id();
 
-    onDragMove(event, newParams, recipeId);
+    onDragMove(event, newParams, drawingId);
   }
 
   return (
@@ -60,9 +60,11 @@ export default function Horocycle({
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
         onDragMove={handleCenterDragMove}
-        color={HOROCYCLE_CENTER_COLOR}
+        color={FIXED_ANCHOR_COLOR}
         strokeWidth={strokeWidth}
         isSelected={isSelected}
+        radius={anchorRadius}
+        originY={originY}
       />
       <Point
         clickedX={anchor.canvasX}
@@ -71,10 +73,11 @@ export default function Horocycle({
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
         onDragMove={handleAnchorDragMove}
-        color={HOROCYCLE_ANCHOR_COLOR}
+        color={FREE_ANCHOR_COLOR}
         strokeWidth={strokeWidth}
         isSelected={isSelected}
         radius={anchorRadius}
+        originY={originY}
       />
     </Group>
   );
