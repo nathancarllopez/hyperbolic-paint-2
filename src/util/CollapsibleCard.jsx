@@ -16,18 +16,23 @@ export default function CollapsibleCard({
   toggleIsOpen,
   children
 }) {
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  const titleText = isTouchDevice ?
+    <h6 className='mb-0'>{title}</h6> :
+    <h5 className='mb-0'>{title}</h5>;
+
   return (
     <Container className='border rounded'>
       <Row
         className='align-items-center gx-0'
-        onClick={() => toggleIsOpen(title)}
-        onTouchStart={() => toggleIsOpen(title)}
+        onClick={() => {console.log('click');toggleIsOpen(title)}}
+        onTouchStart={() => {console.log('touch');toggleIsOpen(title)}}
         style={{cursor: "pointer"}}
         aria-controls="collapse-container"
         aria-expanded={ isOpen }
       >
         <Col>
-          <h5 className="mb-0">{ title }</h5>
+          { titleText }
         </Col>
         <Col className="col-auto">
           <button id='collapseToggle' className="btn">
