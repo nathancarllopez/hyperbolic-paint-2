@@ -1,5 +1,5 @@
 import { Arc, Group, Line } from "react-konva";
-import { AXIS_TRANSLATION_COLOR, POINT_RADIUS, FREE_ANCHOR_COLOR, FIXED_ANCHOR_COLOR, VERTICAL_AXIS_HEIGHT, SELECTED_SHAPE_COLOR, EPSILON, DASH_LENGTH, DASH_SEPARATION, ANIM_SPEED_DAMPENER } from "../../util/constants";
+import { ANIMATION_SHAPE_COLOR, FREE_ANCHOR_COLOR, FIXED_ANCHOR_COLOR, EPSILON, DASH_LENGTH, DASH_SEPARATION, ANIM_SPEED_DAMPENER } from "../../util/constants";
 import { getGeodesicParams } from "../math/geometry";
 import { useEffect, useRef } from "react";
 import Point from "../shapes/Point";
@@ -16,7 +16,8 @@ export default function AxisOfTranslation({
   isSelected,
   isAnimating,
   animationSpeed,
-  anchorRadius
+  anchorRadius,
+  originY
 }) {
   const circleOrLineRef = useRef(null);
 
@@ -63,8 +64,8 @@ export default function AxisOfTranslation({
   const LineAxis = () => (
     <Line
       ref={circleOrLineRef}
-      points={[fixedAnchor.canvasX, VERTICAL_AXIS_HEIGHT, fixedAnchor.canvasX, 0]}
-      stroke={AXIS_TRANSLATION_COLOR}
+      points={[fixedAnchor.canvasX, originY, fixedAnchor.canvasX, 0]}
+      stroke={ANIMATION_SHAPE_COLOR}
       listening={false}
     />
   );
@@ -73,11 +74,11 @@ export default function AxisOfTranslation({
     <Arc
       ref={circleOrLineRef}
       x={center}
-      y={VERTICAL_AXIS_HEIGHT}
+      y={originY}
       angle={360}
       innerRadius={radius}
       outerRadius={radius}
-      stroke={AXIS_TRANSLATION_COLOR}
+      stroke={ANIMATION_SHAPE_COLOR}
       clockwise
       dash={[DASH_LENGTH, DASH_SEPARATION]}
       listening={false}
@@ -93,7 +94,7 @@ export default function AxisOfTranslation({
       y: freeAnchor.canvasY - fixedAnchor.canvasY
     };
     const freeAnchorY = fixedAnchorCoords.canvasY + dispVector.y;
-    const awayFromBoundary = freeAnchorY < VERTICAL_AXIS_HEIGHT - POINT_RADIUS;
+    const awayFromBoundary = freeAnchorY < originY - anchorRadius;
     const freeAnchorCoords = awayFromBoundary ?
       getMathCoordinates(fixedAnchorCoords.canvasX + dispVector.x, fixedAnchorCoords.canvasY + dispVector.y) :
       { ...clicked2.params };
@@ -108,9 +109,9 @@ export default function AxisOfTranslation({
         params: freeAnchorCoords
       }
     };
-    const recipeId = konvaFixedAnchor.getParent().id();
+    const drawingId = konvaFixedAnchor.getParent().id();
 
-    onDragMove(event, newParams, recipeId);
+    onDragMove(event, newParams, drawingId);
   }
 
   function handleFreeAnchorDragMove(event) {
@@ -123,9 +124,9 @@ export default function AxisOfTranslation({
         params: getMathCoordinates(konvaFreeAnchor.x(), konvaFreeAnchor.y())
       }
     };
-    const recipeId = konvaFreeAnchor.getParent().id();
+    const drawingId = konvaFreeAnchor.getParent().id();
 
-    onDragMove(event, newParams, recipeId);
+    onDragMove(event, newParams, drawingId);
   }
 
   return (
