@@ -1,4 +1,11 @@
-import { Card, Col, Form, FormCheck, Row, Stack } from "react-bootstrap";
+import Card from "react-bootstrap/Card";
+import Col from "react-bootstrap/Col";
+import Form from "react-bootstrap/Form";
+import FormCheck from "react-bootstrap/FormCheck";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Row from "react-bootstrap/Row";
+import Stack from "react-bootstrap/Stack";
+import Tooltip from "react-bootstrap/Tooltip";
 import FormCheckInput from "react-bootstrap/esm/FormCheckInput";
 import FormCheckLabel from "react-bootstrap/esm/FormCheckLabel";
 
@@ -12,14 +19,33 @@ export default function Settings({
     { name: 'showToolbarInstructions', label: "Show Toolbar Instructions" }
   ];
 
-  const numInputInfo = [
-    { name: 'pointRadius', label: "Point Radius" },
-    // { name: 'pointHitRadius', label: "Point Hit Radius" }
-  ];
-
   function handleSwitchChange(switchName) {
     setSettings(prev => ({ ...prev, [switchName]: !prev[switchName] }));
   }
+
+  const numInputInfo = [
+    {
+      name: 'pointRadius',
+      label: "Point Radius", 
+      tooltip: "The size of points: their actual radius is this value plus the width chosen in the Styles menu.",
+      min: 1,
+      max: 100,
+    },
+    {
+      name: 'holdDuration',
+      label: "Hold Duration",
+      tooltip: "How long (ms) to press and hold to place the last vertex of a polygon.",
+      min: 1,
+      max: 5000,
+    },
+    {
+      name: 'toastDuration',
+      label: "Toast Message Duration",
+      tooltip: "How long (ms) toast messages are displayed before automatically closing.",
+      min: 1,
+      max: 10000,
+    }
+  ];
 
   function handleNumChange(event, numInputName) {
     setSettings(prev => {
@@ -59,20 +85,33 @@ export default function Settings({
         <Card.Body>
           <Form>
             {
-              numInputInfo.map(({ name, label }) => (
+              numInputInfo.map(({ name, label, tooltip, min, max }) => (
                 <Form.Group
                   key={name}
                   controlId={name}
                   as={Row}
+                  className="mb-1"
                 >
-                  <Form.Label column>{ label }</Form.Label>
-                  <Col>
+                  <OverlayTrigger
+                    placement="left"
+                    overlay={<Tooltip>{ tooltip }</Tooltip>}
+                  >
+                    <Form.Label
+                      column
+                      className="me-auto"
+                    >
+                      { label }
+                    </Form.Label>
+                  </OverlayTrigger>
+                  <Col
+                    className="col-5"
+                  >
                     <Form.Control
                       type="number"
-                      onChange={event => handleNumChange(event, name)}
+                      onChange={(event) => handleNumChange(event, name)}
                       value={settings[name]}
-                      min={1}
-                      max={100}
+                      min={min}
+                      max={max}
                     />
                   </Col>
                 </Form.Group>
