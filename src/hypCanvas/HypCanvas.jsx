@@ -1,7 +1,7 @@
 import { Arc, Layer, Rect, Stage, Text } from "react-konva";
 import { useEffect, useRef, useState } from "react";
 
-import { ACTIVE_POINT_COLOR, ANIM_SPEED_DAMPENER, ANIMATION_TOOLNAMES, CURSOR_COORD_COLOR, CURSOR_FONT_SIZE, HOLD_DURATION_THRESHOLD, INITIAL_ORIGIN_X, VERTICAL_AXIS_HEIGHT } from "../util/constants";
+import { ACTIVE_POINT_COLOR, ANIM_SPEED_DAMPENER, ANIMATION_TOOLNAMES, CURSOR_COORD_COLOR, CURSOR_FONT_SIZE, INITIAL_CANVAS_DIMENSIONS, INITIAL_ORIGIN_COORDS } from "../util/constants";
 import Axes from "./shapes/Axes";
 import AxisOfTranslation from "./animation shapes/AxisOfTranslation";
 import CenterOfRotation from "./animation shapes/CenterOfRotation";
@@ -11,38 +11,33 @@ import Geodesic from "./shapes/Geodesic";
 import HypCircle from "./shapes/HypCircle";
 import Segment from "./shapes/Segment";
 import Polygon from "./shapes/Polygon";
-import { generateId } from "../util/generateId";
 import MobiusTransformation from "./math/mobiusTransformations";
+import generateId from "../util/generateId";
 
 export default function HypCanvas({
   clickTool,
   settings,
   history, setHistory,
-  isAnimating, setIsAnimating,
+  isAnimating,
   animationSpeed,
-  zoomScale,
+  zoomScale, setZoomScale,
   setActiveToasts,
   drawingColor,
   drawingWidth,
   openDropdown, setOpenDropdown,
-  // canvasDimensions
 }) {
-  // console.log(canvasDimensions);
-
   /** State */
   //#region
   const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
   const [mouseCoords, setMouseCoords] = useState(null);
-  const [shapeIsDragging, setShapeIsDragging] = useState(false);
+  const [draggingShapeId, setDraggingShapeId] = useState("");
   const [canvasIsDragging, setCanvasIsDragging] = useState(false);
-  // const [originX, setOriginX] = useState(INITIAL_ORIGIN_X);
-  const [originCoords, setOriginCoords] = useState({ x: window.innerWidth / 2, y: 0.95 * window.innerHeight });
-  const [canvasDimensions, setCanvasDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
+  const [canvasDimensions, setCanvasDimensions] = useState(INITIAL_CANVAS_DIMENSIONS);
+  const [originCoords, setOriginCoords] = useState(INITIAL_ORIGIN_COORDS)
   //#endregion
 
   /** Refs */
   //#region
-  // const appContainerRef = useRef(null);
   const stageRef = useRef(null);
   const mouseXRef = useRef(null);
   const holdStartTimeRef = useRef(null);
@@ -68,7 +63,7 @@ export default function HypCanvas({
       }
 
       const { snapshots, currIdx } = history;
-      const aDrawingIsSelected = snapshots[currIdx].find(recipe => recipe.isSelected) !== undefined;
+      const aDrawingIsSelected = snapshots[currIdx].find(drawing => drawing.isSelected) !== undefined;
       const deletePressed = ['Delete', 'Backspace'].includes(event.key);
       if (aDrawingIsSelected && deletePressed) {
         event.preventDefault();
@@ -83,10 +78,18 @@ export default function HypCanvas({
     }
   }, [history]);
 
-  useEffect(() => { // Controls zooming in and out
+  useEffect(() => { // Controls zooming in and out (Under construction)
     const handleWheel = (event) => {
       event.preventDefault();
       console.log(event.deltaY);
+
+      // Scrolling up gives negative values for deltaY, while scrolling down gives positive values
+      setZoomScale(prev => {
+        const intZoomScale = Math.log(prev);
+        const deltaY = event.deltaY;
+        const newZoomScale = Math.exp(intZoomScale + deltaY);
+        return newZoomScale;
+      });
     }
     
     const stage = stageRef.current;
@@ -97,42 +100,41 @@ export default function HypCanvas({
     }
   }, [zoomScale]);
 
-  useEffect(() => { // Updates canvas size when window is resized or 
+  useEffect(() => { // Updates canvas size when window is resized
     const handleWindowResize = () => {
       setCanvasDimensions({ width: window.innerWidth, height: window.innerHeight });
     }
 
     window.addEventListener('resize', handleWindowResize);
-    if (isTouchDevice) {
-      screen.orientation.addEventListener('change', handleWindowResize);
-    }
 
     return () => {
       window.removeEventListener('resize', handleWindowResize);
-      if (isTouchDevice) {
-        screen.orientation.removeEventListener('change', handleWindowResize);
-      }
     }
   }, []);
 
-  useEffect(() => { // Updates shapes while animating
+  /**
+   * First try: Updates animations as the animation shape is dragged as intended, but has the "maximum update depth exceeded" error from React
+   */
+  useEffect(() => {
     if (!isAnimating) return;
 
     const { snapshots, currIdx } = history;
-    const animationShape = snapshots[currIdx].find(recipe => ANIMATION_TOOLNAMES.includes(recipe.name));
+    const animationShape = snapshots[currIdx].find(drawing => ANIMATION_TOOLNAMES.includes(drawing.name));
     if (!animationShape) return;
 
     copyCurrentDrawings();
+    const animationShapeId = animationShape.id;
     const animationFunc = getAnimationFunction(animationShape);
     let animationFrame = requestAnimationFrame(doAnimation);
 
     function doAnimation() {
-      if (!isAnimating) {
-        cancelAnimationFrame(animationFrame);
-        return;
-      }
+      if (!isAnimating) return;
 
-      transformCurrentDrawings(recipe => animationFunc(recipe, animationSpeed * ANIM_SPEED_DAMPENER));
+      const { snapshots, currIdx } = history;
+      const animationShapeDeleted = snapshots[currIdx].every(drawing => drawing.id !== animationShapeId);
+      if (animationShapeDeleted) return;
+
+      transformCurrentDrawings(drawing => animationFunc(drawing, animationSpeed * ANIM_SPEED_DAMPENER));
 
       animationFrame = requestAnimationFrame(doAnimation);
     }
@@ -140,7 +142,84 @@ export default function HypCanvas({
     return () => {
       cancelAnimationFrame(animationFrame);
     }
-  }, [isAnimating, animationSpeed]);
+  }, [history, isAnimating, animationSpeed]);
+
+  /**
+   * Second try: Removed history from the dependency array, but now the animation doesn't update while the animation shape is dragged
+   */
+  // useEffect(() => {
+  //   if (!isAnimating) return;
+
+  //   const { snapshots, currIdx } = history;
+  //   const animationShape = snapshots[currIdx].find(drawing => ANIMATION_TOOLNAMES.includes(drawing.name));
+  //   if (!animationShape) return;
+
+  //   copyCurrentDrawings();
+  //   const animationShapeId = animationShape.id;
+  //   const animationFunc = getAnimationFunction(animationShape);
+  //   let animationFrame = requestAnimationFrame(doAnimation);
+
+  //   function doAnimation() {
+  //     if (!isAnimating) return;
+
+  //     const { snapshots, currIdx } = history;
+  //     const animationShapeDeleted = snapshots[currIdx].every(drawing => drawing.id !== animationShapeId);
+  //     if (animationShapeDeleted) return;
+
+  //     transformCurrentDrawings(drawing => animationFunc(drawing, animationSpeed * ANIM_SPEED_DAMPENER));
+
+  //     animationFrame = requestAnimationFrame(doAnimation);
+  //   }
+
+  //   return () => {
+  //     cancelAnimationFrame(animationFrame);
+  //   }
+  // }, [isAnimating, animationSpeed]);
+
+  /**
+   * Third try: Updates animation once the animation shape has finished dragging, but doesn't update while dragging
+   */
+  // useEffect(() => { // Updates shapes while animating (Under construction)
+  //   if (!isAnimating) return;
+
+  //   const { snapshots, currIdx } = history;
+  //   let animationShape = snapshots[currIdx].find(drawing => ANIMATION_TOOLNAMES.includes(drawing.name));
+  //   let animationShapeId = animationShape.id;
+  //   if (!animationShape) return;
+
+  //   copyCurrentDrawings();
+
+  //   let animationFunc = getAnimationFunction(animationShape);
+  //   let animationFrame = requestAnimationFrame(doAnimation);
+
+  //   function doAnimation() {
+  //     if (!isAnimating) {
+  //       cancelAnimationFrame(animationFrame);
+  //       return;
+  //     }
+
+  //     const animationShapeDeleted = snapshots[currIdx].every(drawing => drawing.id !== animationShapeId);
+  //     if (animationShapeDeleted) {
+  //       cancelAnimationFrame(animationFrame);
+  //       return;
+  //     }
+
+  //     if (draggingShapeId && draggingShapeId === animationShape.id) {
+  //       const { snapshots, currIdx } = history;
+  //       animationShape = snapshots[currIdx].find(drawing => ANIMATION_TOOLNAMES.includes(drawing.name));
+  //       animationShapeId = animationShape.id;
+  //       animationFunc = getAnimationFunction(animationShape);
+  //     }
+
+  //     transformCurrentDrawings(drawing => animationFunc(drawing, animationSpeed * ANIM_SPEED_DAMPENER));
+
+  //     animationFrame = requestAnimationFrame(doAnimation);
+  //   }
+
+  //   return () => {
+  //     cancelAnimationFrame(animationFrame);
+  //   }
+  // }, [isAnimating, animationSpeed, draggingShapeId]);
   //#endregion
 
   /** Drawing utility functions */
@@ -151,58 +230,35 @@ export default function HypCanvas({
     return {
       canvasX: x,
       canvasY: y,
-      mathX: x - originCoords.x,
-      mathY: Math.floor(originCoords.y - y)
+      mathX: x - zoomScale * originCoords.x,
+      mathY: zoomScale * originCoords.y - y
     };
-
-    // return {
-    //   canvasX: x,
-    //   canvasY: y,
-    //   mathX: x - originX,
-    //   mathY: Math.floor(VERTICAL_AXIS_HEIGHT - y)
-    // };
   }
 
-  function getCanvasCoordinates(mathX, mathY) {
+  function getCanvasCoordinates(mathX, mathY = 0) {
     return {
-      canvasX: mathX + originCoords.x,
-      canvasY: Math.floor(originCoords.y - mathY),
+      canvasX: Math.floor(mathX + zoomScale * originCoords.x),
+      canvasY: Math.floor(zoomScale * originCoords.y - mathY),
       mathX,
       mathY
     };
-
-    // return {
-    //   canvasX: mathX + originX,
-    //   canvasY: Math.floor(VERTICAL_AXIS_HEIGHT - mathY),
-    //   mathX,
-    //   mathY
-    // };
   }
 
-  function getMathCoordinates(canvasX, canvasY) {
+  function getMathCoordinates(canvasX, canvasY = originCoords.y) {
     return {
       canvasX,
       canvasY,
-      mathX: canvasX - originCoords.x,
-      mathY: Math.floor(originCoords.y - canvasY)
+      mathX: canvasX - zoomScale * originCoords.x,
+      mathY: zoomScale * originCoords.y - canvasY
     };
-    
-    // return {
-    //   canvasX,
-    //   canvasY,
-    //   mathX: canvasX - originX,
-    //   mathY: Math.floor(VERTICAL_AXIS_HEIGHT - canvasY)
-    // };
   }
 
   function addDrawingToHistory(lastClickedCoords, longPress = false) {
-    // console.log(lastClickedCoords);
-
     const { snapshots, currIdx } = history;
-    const currActiveCoords = snapshots[currIdx].filter(recipe => recipe.isActive);
+    const currActiveCoords = snapshots[currIdx].filter(drawing => drawing.isActive);
 
     const drawing = ((activeCoords) => {
-      const recipe = {
+      const template = {
         name: 'point',
         id: generateId(),
         isActive: false,
@@ -216,7 +272,7 @@ export default function HypCanvas({
         case 'horocycle':
         case 'point': {
           return {
-            ...recipe,
+            ...template,
             name: clickTool
           };
         }
@@ -227,7 +283,7 @@ export default function HypCanvas({
         case 'geodesic': {
           if (activeCoords.length === 0) {
             return {
-              ...recipe,
+              ...template,
               isActive: true,
             };
           } 
@@ -236,13 +292,13 @@ export default function HypCanvas({
             ...activeCoords[0],
             isActive: false,
           }
-          const clicked2 = recipe;
+          const clicked2 = template;
 
           return {
-            ...recipe,
+            ...template,
             name: clickTool,
             id: generateId(),
-            styles: { ...recipe.styles },
+            styles: { ...template.styles },
             params: { clicked1, clicked2 }
           }
         }
@@ -250,24 +306,24 @@ export default function HypCanvas({
         case 'polygon': {
           if (!longPress) {
             return {
-              ...recipe,
+              ...template,
               isActive: true,
             };
           }
 
-          const firstVertices = activeCoords.map(recipe => {
+          const firstVertices = activeCoords.map(drawing => {
             return {
-              ...recipe,
+              ...drawing,
               isActive: false,
             }
           });
-          const lastVertex = recipe;
+          const lastVertex = template;
 
           return {
-            ...recipe,
+            ...template,
             name: clickTool,
             id: generateId(),
-            styles: { ...recipe.styles },
+            styles: { ...template.styles },
             params: { allClicked: [ ...firstVertices, lastVertex ] }
           }
         }
@@ -279,17 +335,16 @@ export default function HypCanvas({
     })(currActiveCoords);
 
     setHistory(prev => {
-      // console.log('addDrawingToHistory')
       const { snapshots, currIdx } = prev;
       const snapshotsTillCurrent = snapshots.slice(0, currIdx + 1);
       const currentSnapshot = [ ...snapshots[currIdx] ];
 
       const newDrawings = (() => {
         if (ANIMATION_TOOLNAMES.includes(drawing.name)) {
-          const noAnimationShapes = currentSnapshot.filter(recipe => !ANIMATION_TOOLNAMES.includes(recipe.name) && !recipe.isActive);
+          const noAnimationShapes = currentSnapshot.filter(drawing => !ANIMATION_TOOLNAMES.includes(drawing.name) && !drawing.isActive);
           return [ ...noAnimationShapes, drawing ];
         } else if (!drawing.isActive) {
-          const noActivePoints = currentSnapshot.filter(recipe => !recipe.isActive);
+          const noActivePoints = currentSnapshot.filter(drawing => !drawing.isActive);
           return [ ...noActivePoints, drawing ];
         }
         return [ ...currentSnapshot, drawing ];
@@ -303,7 +358,6 @@ export default function HypCanvas({
   }
 
   function copyCurrentDrawings() {
-    // console.log('copying')
     setHistory(prev => {
       const { snapshots, currIdx } = prev;
       const snapshotsTillCurrent = snapshots.slice(0, currIdx + 1);
@@ -317,12 +371,11 @@ export default function HypCanvas({
   }
 
   function transformAllDrawings(mapFunc) {
-    // console.log('transforming all');
     setHistory(prev => {
       const { snapshots, currIdx } = prev;
       const snapshotsTillCurrent = snapshots.slice(0, currIdx + 1);
       const transformedSnapshots = snapshotsTillCurrent.map(
-        snapshot => snapshot.map(recipe => mapFunc(recipe))
+        snapshot => snapshot.map(drawing => mapFunc(drawing))
       );
 
       return { ...prev, snapshots: transformedSnapshots };
@@ -330,33 +383,25 @@ export default function HypCanvas({
   }
 
   function transformCurrentDrawings(mapFunc) {
-    // console.log('transforming current')
     setHistory(prev => {
       const { snapshots, currIdx } = prev;
       const previousSnapshots = snapshots.slice(0, currIdx);
       const currentSnapshot = snapshots[currIdx];
-      const transformedCurrent = currentSnapshot.map(recipe => mapFunc(recipe));
-
-      // if (currentSnapshot.length > 0 && transformedCurrent.length > 0) {
-      //   console.log('before', currentSnapshot[0].params);
-      //   console.log('after', transformedCurrent[0].params);
-      // }
+      const transformedCurrent = currentSnapshot.map(drawing => mapFunc(drawing));
 
       return { ...prev, snapshots: [ ...previousSnapshots, transformedCurrent ] };
     });
   }
 
   function deleteSelectedDrawing() {
-    // console.log('deleteSelectedDrawing');
     setHistory(prev => {
       const { snapshots, currIdx } = prev;
       const snapshotsTillCurrent = snapshots.slice(0, currIdx + 1);
       const currentSnapshot = snapshots[currIdx];
       
-      const noDrawingSelected = currentSnapshot.every(recipe => !recipe.isSelected);
+      const filteredSnapshot = currentSnapshot.filter(drawing => !drawing.isSelected);
+      const noDrawingSelected = filteredSnapshot.length === 0;
       if (noDrawingSelected) return prev;
-
-      const filteredSnapshot = currentSnapshot.filter(recipe => !recipe.isSelected);
 
       return {
         snapshots: [ ...snapshotsTillCurrent, filteredSnapshot ],
@@ -384,9 +429,9 @@ export default function HypCanvas({
       }
     })();
 
-    return (recipe, animationSpeed) => {
-      const { name, params } = recipe;
-      if (name === animationShape.name) return recipe;
+    return (drawing, animationSpeed) => {
+      const { name, params } = drawing;
+      if (name === animationShape.name) return drawing;
       
       const animationFunc = mobius(animationSpeed);
       switch(name) {
@@ -394,7 +439,7 @@ export default function HypCanvas({
         case "horocycle": {
           const { re, im } = animationFunc.applyToCoords(params);
           return {
-            ...recipe,
+            ...drawing,
             params: getCanvasCoordinates(re, im)
           };
         };
@@ -403,34 +448,34 @@ export default function HypCanvas({
         case "circle":
         case "geodesic": {
           const { clicked1, clicked2 } = params;
-          const [animatedClicked1, animatedClicked2] = [clicked1, clicked2].map(recipe => {
-            const { params } = recipe;
+          const [animatedClicked1, animatedClicked2] = [clicked1, clicked2].map(d => {
+            const { params } = d;
             const animatedParams = animationFunc.applyToCoords(params); // Now a ComplexNumber, see ./math/complexNumber.js
             return {
-              ...recipe,
+              ...d,
               params: getCanvasCoordinates(animatedParams.re, animatedParams.im)
             };
           });
 
           return {
-            ...recipe,
+            ...drawing,
             params: { clicked1: animatedClicked1, clicked2: animatedClicked2 }
           };
         }
 
         case 'polygon': {
           const { allClicked } = params;
-          const animatedAllClicked = allClicked.map(recipe => {
-            const { params } = recipe;
+          const animatedAllClicked = allClicked.map(d => {
+            const { params } = d;
             const animatedParams = animationFunc.applyToCoords(params); // Now a ComplexNumber, see ./math/complexNumber.js
             return {
-              ...recipe,
+              ...d,
               params: getCanvasCoordinates(animatedParams.re, animatedParams.im)
             }
           });
 
           return {
-            ...recipe,
+            ...drawing,
             params: { allClicked: animatedAllClicked }
           };
         }
@@ -448,112 +493,117 @@ export default function HypCanvas({
   function handleMouseDown(konvaEvent) {
     konvaEvent.evt.preventDefault();
 
-    if (openDropdown !== null) {
-      setOpenDropdown(null);
-      return;
-    }
-
-    if (isAnimating) {
-      setIsAnimating(false);
-    }
-
     const clickCoords = getCurrentCoordinates(konvaEvent);
-    const outOfBounds = clickCoords.mathY < 0;
-    if (outOfBounds) return;
+    const shouldExitEarly = checkForEarlyExits(clickCoords);
+    if (shouldExitEarly) return;
 
-    setMouseCoords(isTouchDevice ? null : clickCoords);
+    setMouseCoords(clickCoords);
     mouseXRef.current = clickCoords.canvasX;
 
-    const { snapshots, currIdx } = history;
-    const selectedShape = snapshots[currIdx].find(recipe => recipe.isSelected);
+    const { snapshots , currIdx } = history;
+    const currentDrawings = snapshots[currIdx];
     const konvaShape = konvaEvent.target;
-    const shapeId = konvaShape.getParent()?.id()
-    const someShapeClicked = konvaShape !== konvaShape.getStage() && shapeId !== undefined;
-    if (someShapeClicked) {
-      const selectedShapeClicked = selectedShape?.id === shapeId;
-      
-      if (selectedShape && selectedShapeClicked) {
-        clickedShapeRef.current = null;
-      } else {
-        clickedShapeRef.current = konvaShape;
-      }
-      
-      transformCurrentDrawings(recipe => ({ ...recipe, isSelected: false }));
-      return;
-    }
+    const shapeWasClicked = checkForShapeClick(currentDrawings, konvaShape);
+    if (shapeWasClicked) return;
 
-    // transformCurrentDrawings(recipe => ({ ...recipe, isSelected: false }));
-
-    const activeCoords = snapshots[currIdx].filter(recipe => recipe.isActive);
-    const holdIndicator = holdIndicatorRef.current;
+    const activePointCount = currentDrawings.reduce((count, drawing) => {
+      return drawing.isActive ? count + 1 : count;
+    }, 0);
 
     clickedShapeRef.current = null;
     holdStartTimeRef.current = performance.now();
-    mouseAnimFrameRef.current = requestAnimationFrame(checkHoldDuration);
+    mouseAnimFrameRef.current = requestAnimationFrame(() => checkHoldDuration(activePointCount, clickCoords));
+  }
 
-    function checkHoldDuration() {
-      const holdDuration = performance.now() - holdStartTimeRef.current;
-      if (holdIndicator) {
-        const indicatorAngle = 360 * (holdDuration / HOLD_DURATION_THRESHOLD);
-        holdIndicator.angle(indicatorAngle);
+  function checkForEarlyExits(clickCoords) {
+    if (openDropdown !== null) {
+      setOpenDropdown(null);
+      return true;
+    }
+
+    const outOfBounds = clickCoords.mathY < 0;
+    if (outOfBounds) {
+      return true;
+    }
+
+    return false;
+  }
+
+  function checkForShapeClick(currentDrawings, konvaShape) {
+    const clickedStage = konvaShape === konvaShape.getStage();
+    if (clickedStage) return false;
+
+    const konvaShapeId = konvaShape.getParent()?.id();
+    if (!konvaShapeId) return false; // Clicked the axes, e.g
+
+    const previouslySelected = currentDrawings.find(drawing => drawing.isSelected);
+    const previouslySelectedClicked = konvaShapeId === previouslySelected?.id;
+    
+    if (previouslySelectedClicked) {
+      clickedShapeRef.current = null;
+    } else {
+      clickedShapeRef.current = konvaShape;
+    }
+      
+    transformCurrentDrawings(drawing => ({ ...drawing, isSelected: false }));
+    return true;
+  }
+
+  function checkHoldDuration(activePointCount, clickCoords) {
+    const holdDuration = performance.now() - holdStartTimeRef.current;
+    const holdIndicator = holdIndicatorRef.current;
+    if (holdIndicator) {
+      const indicatorAngle = 360 * (holdDuration / settings.holdDuration);
+      holdIndicator.angle(indicatorAngle);
+    }
+    
+    if (holdDuration >= settings.holdDuration) {
+      cancelAnimationFrame(mouseAnimFrameRef.current);
+      mouseAnimFrameRef.current = null;
+
+      const draggingCanvas = mouseXRef.current !== clickCoords.canvasX;
+      if (clickTool === 'polygon' && !draggingCanvas) {
+        if (activePointCount < 2) {
+          setActiveToasts(prev => [ ...prev, 'polygonError'] );
+        } else {
+          const longPress = true;
+          addDrawingToHistory(clickCoords, longPress);
+        }
       }
       
-      if (holdDuration >= HOLD_DURATION_THRESHOLD) {
-        cancelAnimationFrame(mouseAnimFrameRef.current);
-        mouseAnimFrameRef.current = null;
-
-        const draggingCanvas = mouseXRef.current !== clickCoords.canvasX;
-        if (clickTool === 'polygon' && activeCoords.length > 0 && !draggingCanvas) {
-          if (activeCoords.length === 1) {
-            // setShowToast(true);
-            // setToastToShow('polygonError');
-            setActiveToasts(prev => [ ...prev, 'polygonError'] );
-          } else {
-            const longPress = true;
-            addDrawingToHistory(clickCoords, longPress);
-          }
-        }
-        
-        if (holdIndicator) {
-          holdIndicator.angle(0);
-        }
-        return;
+      if (holdIndicator) {
+        holdIndicator.angle(0);
       }
-
-      mouseAnimFrameRef.current = requestAnimationFrame(checkHoldDuration);
+      return;
     }
+
+    mouseAnimFrameRef.current = requestAnimationFrame(() => checkHoldDuration(activePointCount, clickCoords));
   }
 
   function handleMouseMove(konvaEvent) {
     const currCoords = getCurrentCoordinates(konvaEvent)
+    document.body.style.cursor = currCoords.mathY < 0 ? "not-allowed" : "default";
     setMouseCoords(currCoords);
-
-    if (currCoords.mathY < 0) {
-      document.body.style.cursor = "not-allowed";
-    } else {
-      document.body.style.cursor = "default";
-    }
 
     const { snapshots, currIdx } = history;
     const someShapeClicked = clickedShapeRef.current !== null;
-    const someShapeSelected = snapshots[currIdx].find(recipe => recipe.isSelected) !== undefined;
+    const someShapeSelected = snapshots[currIdx].find(drawing => drawing.isSelected) !== undefined;
     if (mouseXRef.current === null || someShapeClicked || someShapeSelected) return;
 
     const dispX = currCoords.canvasX - mouseXRef.current;
-    if (Math.abs(dispX) > 2) {
+    if (Math.abs(dispX) > 2) {  // To do: What is the right number here?
       mouseXRef.current = currCoords.canvasX;
       setCanvasIsDragging(true);
-      // setOriginX(prev => prev + dispX);
       setOriginCoords(prev => ({ ...prev, x: prev.x + dispX }));
-      transformAllDrawings(recipe => {
-        const { name, params } = recipe;
+      transformAllDrawings(drawing => {
+        const { name, params } = drawing;
 
         switch(name) {
           case 'rotation':
           case 'horocycle':
           case 'point': {
             return {
-              ...recipe,
+              ...drawing,
               params: {
                 ...params,
                 canvasX: params.canvasX + dispX
@@ -566,41 +616,36 @@ export default function HypCanvas({
           case 'circle':
           case 'geodesic': {
             const { clicked1, clicked2 } = params;
-            const dispClicked1 = {
-              ...clicked1,
-              params: {
-                ...clicked1.params,
-                canvasX: clicked1.params.canvasX + dispX
+            const [dispClicked1, dispClicked2] = [clicked1, clicked2].map(clicked => {
+              return {
+                ...clicked,
+                params: {
+                  ...clicked.params,
+                  canvasX: clicked.params.canvasX + dispX
+                }
               }
-            };
-            const dispClicked2 = {
-              ...clicked2,
-              params: {
-                ...clicked2.params,
-                canvasX: clicked2.params.canvasX + dispX
-              }
-            };
+            });
 
             return {
-              ...recipe,
+              ...drawing,
               params: { clicked1: dispClicked1, clicked2: dispClicked2 }
             };
           };
 
           case 'polygon': {
             const { allClicked } = params;
-            const dispAllClicked = allClicked.map(recipe => {
+            const dispAllClicked = allClicked.map(clicked => {
               return {
-                ...recipe,
+                ...clicked,
                 params: {
-                  ...recipe.params,
-                  canvasX: recipe.params.canvasX + dispX
+                  ...clicked.params,
+                  canvasX: clicked.params.canvasX + dispX
                 }
               };
             });
 
             return {
-              ...recipe,
+              ...drawing,
               params: { allClicked: dispAllClicked }
             };
           };
@@ -627,28 +672,30 @@ export default function HypCanvas({
     const endCoords = getCurrentCoordinates(konvaEvent)
     setMouseCoords(isTouchDevice ? null : endCoords);
 
-    if (!shapeIsDragging && !canvasIsDragging) {
+    if (!draggingShapeId && !canvasIsDragging) {
       const holdDuration = performance.now() - holdStartTimeRef.current;
-      const shortHold = holdDuration < HOLD_DURATION_THRESHOLD;
-      const { snapshots, currIdx } = history;
-      const selectedShape = snapshots[currIdx].find(recipe => recipe.isSelected)
-      if (shortHold && selectedShape === undefined) {
-        addDrawingToHistory(endCoords);
+      const shortHold = holdDuration < settings.holdDuration;
+      if (shortHold) {
+        const { snapshots, currIdx } = history;
+        const noSelectedShape = snapshots[currIdx].every(drawing => !drawing.isSelected);
+        if (noSelectedShape) {
+          addDrawingToHistory(endCoords);
+        }
       }
       
       const shapeWasClicked = clickedShapeRef.current !== null;
       if (shapeWasClicked) {
         const clickedShapeId = clickedShapeRef.current.getParent().id();
-        transformCurrentDrawings(recipe => {
-          if (recipe.id !== clickedShapeId) return recipe;
+        transformCurrentDrawings(drawing => {
+          if (drawing.id !== clickedShapeId) return drawing;
 
           return {
-            ...recipe,
+            ...drawing,
             isSelected: true,
           }
         });
       } else {
-        transformCurrentDrawings(recipe => ({ ...recipe, isSelected: false }))
+        transformCurrentDrawings(drawing => ({ ...drawing, isSelected: false }))
       }
     }
 
@@ -660,49 +707,36 @@ export default function HypCanvas({
     setMouseCoords(null);
     mouseXRef.current = null;
   }
-  function handleShapeDragStart() {
-  // function handleShapeDragStart(event) {
-    // const konvaShape = event.target;
-    // console.log(konvaShape.x(), konvaShape.y())
-    // console.log('start');
-    setShapeIsDragging(true);
+
+  function handleShapeDragStart(event) {
+    setDraggingShapeId(event.target.getParent().id());
     copyCurrentDrawings();
   }
 
-  function handleShapeDragMove(konvaEvent, newParams, recipeId) {
+  function handleShapeDragMove(konvaEvent, newParams, drawingId) {
     const currCoords = getCurrentCoordinates(konvaEvent);
     setMouseCoords(currCoords);
 
-    // console.log('newParams', newParams);
-    // console.log('recipeId:', recipeId);
-
-    transformCurrentDrawings(recipe => {
-      if (recipe.id !== recipeId) return recipe;
-
+    transformCurrentDrawings(drawing => {
+      if (drawing.id !== drawingId) return drawing;
       return {
-        ...recipe,
+        ...drawing,
         params: newParams
       }
     });
   }
+
   function handleShapeDragEnd() {
-  // function handleShapeDragEnd(event) {
-  //   const konvaShape = event.target;
-  //   console.log(konvaShape.x(), konvaShape.y())
-  //   console.log('end')
-    setShapeIsDragging(false);
+    setDraggingShapeId(null);
   }
   //#endregion
 
-  /** Turn recipes into components */
+  /** Turn drawings into components */
   //#region
   const { snapshots, currIdx } = history;
-  const drawings = snapshots[currIdx].map(recipe => {
-    // const { name, id, isActive, isSelected, params } = recipe;
-    const { name, id, isActive, isSelected, styles, params } = recipe;
+  const drawings = snapshots[currIdx].map(drawing => {
+    const { name, id, isActive, isSelected, styles, params } = drawing;
     const { color, strokeWidth } = styles;
-
-    // console.log('id:', id);
 
     if (isActive) {
       return (
@@ -715,14 +749,13 @@ export default function HypCanvas({
           color={ACTIVE_POINT_COLOR}
           strokeWidth={strokeWidth}
           radius={settings.pointRadius}
-          // hitRadius={settings.pointHitRadius}
           isDraggable={false}
           isActive={isActive}
         />
       );
     }
 
-    if (!name) throw new Error(`Missing shape name from recipe: ${recipe}`);
+    if (!name) throw new Error(`Missing name from drawing: ${drawing}`);
 
     switch(name) {
       case 'point': {
@@ -736,11 +769,11 @@ export default function HypCanvas({
             color={color}
             strokeWidth={strokeWidth}
             radius={settings.pointRadius}
-            // hitRadius={settings.pointHitRadius}
             onDragStart={handleShapeDragStart}
             onDragMove={handleShapeDragMove}
             onDragEnd={handleShapeDragEnd}
             isSelected={isSelected}
+            originY={originCoords.y}
           />
         )
       }
@@ -760,6 +793,7 @@ export default function HypCanvas({
             color={color}
             strokeWidth={strokeWidth}
             anchorRadius={settings.pointRadius}
+            originY={originCoords.y}
           />
         )
       }
@@ -779,6 +813,7 @@ export default function HypCanvas({
             color={color}
             strokeWidth={strokeWidth}
             anchorRadius={settings.pointRadius}
+            originY={originCoords.y}
           />
         )
       }
@@ -798,6 +833,7 @@ export default function HypCanvas({
             color={color}
             strokeWidth={strokeWidth}
             anchorRadius={settings.pointRadius}
+            originY={originCoords.y}
           />
         )
       }
@@ -817,6 +853,7 @@ export default function HypCanvas({
             color={color}
             strokeWidth={strokeWidth}
             anchorRadius={settings.pointRadius}
+            originY={originCoords.y}
           />
         )
       }
@@ -835,6 +872,7 @@ export default function HypCanvas({
             color={color}
             strokeWidth={strokeWidth}
             anchorRadius={settings.pointRadius}
+            originY={originCoords.y}
           />
         )
       }
@@ -854,6 +892,7 @@ export default function HypCanvas({
             isSelected={isSelected}
             animationSpeed={animationSpeed}
             anchorRadius={settings.pointRadius}
+            originY={originCoords.y}
           />
         )
       }
@@ -873,6 +912,7 @@ export default function HypCanvas({
             isSelected={isSelected}
             animationSpeed={animationSpeed}
             anchorRadius={settings.pointRadius}
+            originY={originCoords.y}
           />
         )
       }
@@ -886,24 +926,18 @@ export default function HypCanvas({
   return (
     <Stage
       ref={stageRef}
-
       width={canvasDimensions.width}
       height={canvasDimensions.height}
-
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
-
       onTouchStart={handleMouseDown}
       onTouchMove={handleMouseMove}
       onTouchEnd={handleMouseUp}
-
       onMouseLeave={handleMouseLeave}
     >
       {/* DRAWINGS */}
-      <Layer>
-        { drawings }
-      </Layer>
+      <Layer>{ drawings }</Layer>
 
       {/* NEGATIVE Y-VALUES MASK */}
       <Layer>
@@ -912,14 +946,12 @@ export default function HypCanvas({
           width={window.innerWidth}
           height={window.innerHeight - originCoords.y}
           fill={"rgb(33, 37, 41)"}
-          // opacity={1}
         />
       </Layer>
 
       {/* AXES */}
       <Layer>
         <Axes 
-          // originX={originX}
           originCoords={originCoords}
           getMathCoordinates={getMathCoordinates}
           settings={settings}
@@ -942,7 +974,7 @@ export default function HypCanvas({
             />
         }
         {
-          mouseCoords && clickTool === 'polygon' &&
+          clickTool === 'polygon' && mouseCoords && 
             <Arc
               ref={holdIndicatorRef}
               x={mouseCoords.canvasX}
