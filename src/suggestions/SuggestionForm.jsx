@@ -16,36 +16,15 @@ export default function SuggestionForm({
 
   return (
     <Form>
-      <Form.Group className="mb-3" controlId="email-input">
-        <Form.Label>
-          Email
-        </Form.Label>
-        <Form.Control
-          type="email"
-          onChange={handleChange}
-          name="email"
-          value={formData.email}
-          autoComplete="on"
-        />
-        {
-          invalidInputs.email ?
-            <Form.Text className="text-danger">
-              Please enter a valid email, or leave this field blank.
-            </Form.Text> :
-            <Form.Text className="text-muted">
-              Optional, only needed if you want to track the status of your feedback.
-            </Form.Text>
-        }
-      </Form.Group>
-
-      <Form.Group>
+      <Form.Group controlId="type-input">
+        <Form.Label>Type</Form.Label>
         <Form.Select
           className={invalidInputs.type ? undefined : "mb-3"}
           onChange={handleChange}
           name="type"
           value={formData.type}  
         >
-          <option value={""}> -- Type -- </option>
+          <option value={""}> -- </option>
           <option value={"feature"}>New feature</option>
           <option value={"bug"}>Bug report</option>
           <option value={"design"}>Design improvement</option>
@@ -60,10 +39,10 @@ export default function SuggestionForm({
       </Form.Group>
 
       {
-        formData.type === "other" &&
+        formData.type === 'other' &&
           <Form.Group className="mb-3" controlId="otherType-input">
             <Form.Label>
-              Other
+              Other Type
             </Form.Label>
             <Form.Control
               type="text"
