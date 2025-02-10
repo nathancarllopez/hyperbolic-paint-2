@@ -1,6 +1,5 @@
 import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
-import { TOAST_DELAY } from "../util/constants";
 
 export default function Toaster({
   activeToasts,
@@ -56,21 +55,20 @@ export default function Toaster({
       show: settings.showToolbarInstructions
     },
   }
-
-  function handleToastClose(toRemove) {
-    setActiveToasts(prev => prev.filter(toastName => toastName !== toRemove));
-  }
+  const containerStyle = isTouchDevice ?
+    { bottom: "3rem", right: "1rem" } :
+    { bottom: "4rem", right: "1rem" };  // To do: Why does this seem to work on Chrome Dev tools but not on my actual phone?
 
   return (
-    <ToastContainer position="bottom-end" className="p-3">
+    <ToastContainer style={containerStyle}>
       {
         activeToasts.map((name, idx) => (
           <Toast
             key={`${name}-${idx}`}
             bg={idx === activeToasts.length - 1 ? "primary" : undefined}
-            onClose={() => handleToastClose(name)}
+            onClose={() => setActiveToasts(prev => prev.slice(1))}
             show={allToastInfo[name].show}
-            delay={TOAST_DELAY}
+            delay={settings.toastDuration}
             autohide
           >
             <Toast.Header>
@@ -82,23 +80,6 @@ export default function Toaster({
           </Toast>
         ))
       }
-
-      {/* {
-        allToastInfo.map(({ name, header, body, show }) => (
-          <Toast
-            key={name}
-            onClose={() => handleToastClose(name)}
-            show={show && activeToasts.includes(name)}
-            delay={TOAST_DELAY}
-            autohide
-          >
-            <Toast.Header>
-              <strong className="me-auto">{ header }</strong>
-            </Toast.Header>
-            <Toast.Body>{ body }</Toast.Body>
-          </Toast>
-        ))
-      } */}
     </ToastContainer>
   );
 }
