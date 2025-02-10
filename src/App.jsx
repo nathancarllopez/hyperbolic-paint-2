@@ -1,8 +1,6 @@
 import './App.css';
-import { useEffect, useRef, useState } from 'react';
-
-import { ANIMATION_TOOLNAMES, INITIAL_ORIGIN_COORDS, INITIAL_SETTINGS } from './util/constants';
-
+import { useState } from 'react';
+import { ANIMATION_TOOLNAMES, INITIAL_SETTINGS } from './util/constants';
 import FabDrawer from './fabDrawer/FabDrawer';
 import HypCanvas from './hypCanvas/HypCanvas';
 import Information from './information/Information';
@@ -10,10 +8,9 @@ import Toaster from './toaster/Toaster';
 import Toolbar from './toolbar/Toolbar';
 import Settings from './settings/Settings';
 import AnimationControls from './toolbar/AnimationControls';
+import StyleControls from './toolbar/StyleControls';
 
 export default function App() {
-  /** State */
-  //#region
   const [openDrawer, setOpenDrawer] = useState(null);
   const [clickTool, setClickTool] = useState("point");
   const [settings, setSettings] = useState(INITIAL_SETTINGS)
@@ -25,10 +22,10 @@ export default function App() {
   const [drawingColor, setDrawingColor] = useState("#FFFFFF");
   const [drawingWidth, setDrawingWidth] = useState(2);
   const [openDropdown, setOpenDropdown] = useState(null);
-  const [originCoords, setOriginCoords] = useState(INITIAL_ORIGIN_COORDS);
-  //#endregion
 
-  // console.log(canvasDimensions);
+  const { snapshots, currIdx } = history;
+  const someShapeSelected = snapshots[currIdx].some(drawing => drawing.isSelected && !ANIMATION_TOOLNAMES.includes(drawing.name));
+  const animationShapePlaced = snapshots[currIdx].some(drawing => ANIMATION_TOOLNAMES.includes(drawing.name));
 
   return (
     <div
@@ -42,7 +39,7 @@ export default function App() {
     >
       <FabDrawer
         title={"Information"}
-        fabPlacement={{ top: 0, left: 0 }}
+        fabPlacement={{ top: 0, left: 0, margin: "1rem", position: "fixed" }}
         drawerPlacement={"start"}
         openDrawer={openDrawer}
         setOpenDrawer={setOpenDrawer}
@@ -57,20 +54,17 @@ export default function App() {
         setClickTool={setClickTool}
         history={history}
         setHistory={setHistory}
-        // setToastToShow={setToastToShow}
         setActiveToasts={setActiveToasts}
         drawingColor={drawingColor}
         setDrawingColor={setDrawingColor}
         drawingWidth={drawingWidth}
         setDrawingWidth={setDrawingWidth}
-        // styleDropdownOpen={styleDropdownOpen}
-        // setStyleDropdownOpen={setStyleDropdownOpen}
         openDropdown={openDropdown}
         setOpenDropdown={setOpenDropdown}
       />
 
       {
-        ANIMATION_TOOLNAMES.includes(clickTool) &&
+        animationShapePlaced &&
           <AnimationControls
             history={history}
             isAnimating={isAnimating}
@@ -80,33 +74,31 @@ export default function App() {
           />
       }
 
+      {
+        someShapeSelected &&
+          <StyleControls
+            history={history}
+            setHistory={setHistory}
+          />
+      }
+
       <HypCanvas
         clickTool={clickTool}
         settings={settings}
         history={history}
         setHistory={setHistory}
         isAnimating={isAnimating}
-        setIsAnimating={setIsAnimating}
         animationSpeed={animationSpeed}
         zoomScale={zoomScale}
-        // setShowToast={setShowToast}
-        // setToastToShow={setToastToShow}
+        setZoomScale={setZoomScale}
         setActiveToasts={setActiveToasts}
         drawingColor={drawingColor}
         drawingWidth={drawingWidth}
-        // styleDropdownOpen={styleDropdownOpen}
         openDropdown={openDropdown}
         setOpenDropdown={setOpenDropdown}
-        // canvasDimensions={canvasDimensions}
-        originCoords={originCoords}
-        setOriginCoords={setOriginCoords}
       />
 
-      {/* Style and Animation panels go here */}
-
       <Toaster
-        // toastToShow={toastToShow}
-        // setToastToShow={setToastToShow}
         activeToasts={activeToasts}
         setActiveToasts={setActiveToasts}
         settings={settings}
@@ -114,7 +106,7 @@ export default function App() {
 
       <FabDrawer
         title={"Settings"}
-        fabPlacement={{ top: 0, right: 0 }}
+        fabPlacement={{ top: 0, right: 0, margin: "1rem", position: "fixed" }}
         drawerPlacement="end"
         openDrawer={openDrawer}
         setOpenDrawer={setOpenDrawer}
@@ -124,8 +116,6 @@ export default function App() {
         <Settings
           settings={settings}
           setSettings={setSettings}
-          originCoords={originCoords}
-          setOriginCoords={setOriginCoords}
         />
       </FabDrawer>
     </div>
