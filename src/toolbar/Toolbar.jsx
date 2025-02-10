@@ -1,9 +1,15 @@
+import { useState } from "react";
+import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
+import Fade from "react-bootstrap/Fade";
+import Image from "react-bootstrap/Image";
+
 import HistoryControlButtons from "./HistoryControlButtons";
 import FloatingDraggableCard from "../util/FloatingDraggableCard";
 import StylesDropdown from "./StylesDropdown";
 import GenericDropdown from "./GenericDropdown";
-import { useEffect, useState } from "react";
+import Fab from "../fabDrawer/Fab";
+import closeIcon from "../assets/x-lg.svg";
 
 export default function Toolbar({
   clickTool, setClickTool,
@@ -13,23 +19,13 @@ export default function Toolbar({
   drawingWidth, setDrawingWidth,
   openDropdown, setOpenDropdown
 }) {
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
   const [isVertical, setIsVertical] = useState(screen.orientation.type.includes('portrait'));
-  // const [dropDirection, setDropDirection] = useState();
-
-  // useEffect(() => {
-  //   const handleOrientationChange = (event) => {
-  //     // console.log('toolbar');
-  //     setIsVertical(event.target.type.includes('portrait'))
-  //   }
-
-  //   screen.orientation.addEventListener('change', handleOrientationChange);
-
-  //   return () => {
-  //     screen.orientation.removeEventListener('change', handleOrientationChange);
-  //   }
-  // }, []);
+  const [isExpanded, setIsExpanded] = useState(true);
 
   function handleDragStop(_, data) {
+    if (!isExpanded) return;
+
     setIsVertical(prev => {
       const toolbarContainer = data.node;
       const { left, right, top, bottom } = toolbarContainer.getBoundingClientRect();
@@ -63,46 +59,88 @@ export default function Toolbar({
   ];
 
   return (
-    <FloatingDraggableCard 
+    <FloatingDraggableCard
       handleDragStop={handleDragStop}
-      placement={{ top: 0 }}
+      placement={{ top: isTouchDevice ? "0.5rem" : "1rem" }}
       centered={true}
     >
-      <ButtonGroup vertical={isVertical}>
-        <GenericDropdown
-          title={"Shapes"}
-          itemInfo={shapesInfo}
-          clickTool={clickTool}
-          setClickTool={setClickTool}
-          setActiveToasts={setActiveToasts}
-          openDropdown={openDropdown}
-          setOpenDropdown={setOpenDropdown}
+      <Fade
+        in={!isExpanded}
+        mountOnEnter
+        unmountOnExit
+      >
+        <Fab
+          placement={{ top: 0 }}
+          onClick={() => setIsExpanded(!isExpanded)}
+          onTouchStart={() => setIsExpanded(!isExpanded)}
+          icon={"Toolbar"}
         />
+      </Fade>
 
-        <GenericDropdown
-          title={"Animations"}
-          itemInfo={animationsInfo}
-          clickTool={clickTool}
-          setClickTool={setClickTool}
-          setActiveToasts={setActiveToasts}
-          openDropdown={openDropdown}
-          setOpenDropdown={setOpenDropdown}
-        />
+      <Fade
+        in={isExpanded}
+        mountOnEnter
+        unmountOnExit
+      >
+        <ButtonGroup
+          vertical={isVertical}
+          size={isTouchDevice ? 'sm' : 'lg'}
+        >
+          <GenericDropdown
+            title={"Shapes"}
+            itemInfo={shapesInfo}
+            clickTool={clickTool}
+            setClickTool={setClickTool}
+            setActiveToasts={setActiveToasts}
+            openDropdown={openDropdown}
+            setOpenDropdown={setOpenDropdown}
+            toolbarIsVertical={isVertical}
+          />
 
-        <StylesDropdown
-          drawingColor={drawingColor}
-          setDrawingColor={setDrawingColor}
-          drawingWidth={drawingWidth}
-          setDrawingWidth={setDrawingWidth}
-          openDropdown={openDropdown}
-          setOpenDropdown={setOpenDropdown}
-        />
+          <GenericDropdown
+            title={"Animations"}
+            itemInfo={animationsInfo}
+            clickTool={clickTool}
+            setClickTool={setClickTool}
+            setActiveToasts={setActiveToasts}
+            openDropdown={openDropdown}
+            setOpenDropdown={setOpenDropdown}
+            toolbarIsVertical={isVertical}
+          />
 
-        <HistoryControlButtons
-          history={history}
-          setHistory={setHistory}
-        />
-      </ButtonGroup>
+          <StylesDropdown
+            drawingColor={drawingColor}
+            setDrawingColor={setDrawingColor}
+            drawingWidth={drawingWidth}
+            setDrawingWidth={setDrawingWidth}
+            openDropdown={openDropdown}
+            setOpenDropdown={setOpenDropdown}
+            toolbarIsVertical={isVertical}
+          />
+
+          <HistoryControlButtons
+            history={history}
+            setHistory={setHistory}
+          />
+        </ButtonGroup>
+      </Fade>
+
+      {
+        isExpanded &&
+          <Button
+            onClick={() => setIsExpanded(!isExpanded)}
+            onTouchStart={() => setIsExpanded(!isExpanded)}
+            className="rounded-circle"
+            size={isTouchDevice ? "sm" : 'lg'}
+            style={{
+              position: "absolute",
+              right: isTouchDevice ? "-0.5rem" : "-1rem",
+              top: isTouchDevice ? "-0.5rem" : "-1rem",
+            }}
+          >
+            <Image src={closeIcon} fluid/>
+          </Button>
+      }
     </FloatingDraggableCard>
   );
 }
