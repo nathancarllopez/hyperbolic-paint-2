@@ -1,13 +1,12 @@
+import { useState } from "react";
 import CollapsibleCard from "../util/CollapsibleCard";
 import Link from "./Link";
+import SuggestionModal from "../suggestions/SuggestionModal";
 import negCurvSurface from "../assets/neg-curve-surface.gif";
-
 import Card from "react-bootstrap/Card"
 import Container from "react-bootstrap/Container"
 import Figure from "react-bootstrap/Figure"
 import Stack from "react-bootstrap/Stack"
-import { useState } from "react";
-import SuggestionModal from "../suggestions/SuggestionModal";
 
 export default function Information() {
   const [openCard, setOpenCard] = useState("Welcome to Hyperbolic Paint")
@@ -16,7 +15,7 @@ export default function Information() {
     setOpenCard(() => {
       if (openCard === title) return null;
       return title;
-    })
+    });
   }
 
   return (
